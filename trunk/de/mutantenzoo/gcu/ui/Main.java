@@ -35,6 +35,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
@@ -63,6 +64,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import de.mutantenzoo.gcu.io.DriveTrainEncoder;
+import de.mutantenzoo.gcu.model.ChainlineStatus;
 import de.mutantenzoo.gcu.model.DriveTrain;
 import de.mutantenzoo.gcu.model.DriveTrainStyle;
 import de.mutantenzoo.gcu.units.UnitSystem;
@@ -70,6 +72,7 @@ import de.mutantenzoo.raf.ActionContainer;
 import de.mutantenzoo.raf.ActionGroup;
 import de.mutantenzoo.raf.ContentChangeListener;
 import de.mutantenzoo.raf.HelpPane;
+import de.mutantenzoo.raf.LocalizedAction;
 
 /**
  * @author MKlemm
@@ -118,6 +121,7 @@ public class Main implements ContentChangeListener {
 		}
 	}
 
+	@SuppressWarnings("serial")
 	public void initComponents() {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		JDialog.setDefaultLookAndFeelDecorated(true);
@@ -141,13 +145,30 @@ public class Main implements ContentChangeListener {
 		mainPanel.add(tabbedPane, gbc);
 		
 		ActionGroup fileGroup = actions.getActionGroup("File");
-		fileGroup.add(new NewAction(this));
+		fileGroup.add(new LocalizedAction("New"){
+			public void actionPerformed(ActionEvent e) {
+				newProfile();
+			}});
+		
 		fileGroup.addSeparator();
-		fileGroup.add(new OpenAction(this));
-		fileGroup.add(new SaveAction(this));
-		fileGroup.add(new SaveAsAction(this));
+		
+		fileGroup.add(new LocalizedAction("Open") {
+			public void actionPerformed(ActionEvent e) {
+				open();
+			}});
+		
+		fileGroup.add(new LocalizedAction("Save") {	public void actionPerformed(ActionEvent e) {save();}});
+		
+		fileGroup.add(new LocalizedAction("SaveAs") {
+			public void actionPerformed(ActionEvent e) {
+				saveAs();
+			}});
+
 		fileGroup.addSeparator();
-		fileGroup.add(new ExitAction(this));
+		fileGroup.add(new LocalizedAction("Exit"){
+			public void actionPerformed(ActionEvent e) {
+				exit();
+			}});
 
 		
 		ActionGroup editGroup = actions.getActionGroup("Edit");
@@ -160,18 +181,42 @@ public class Main implements ContentChangeListener {
 		
 		
 		ActionGroup viewGroup = actions.getActionGroup("View");
-		viewGroup.add(new ViewAllGearsAction(this));
-		viewGroup.add(new ViewOKGearsAction(this));
-		viewGroup.add(new ViewGoodGearsAction(this));
+		viewGroup.add(new LocalizedAction("All") {
+			public void actionPerformed(ActionEvent e) {
+				viewAllGears();
+			}});
+		
+		viewGroup.add(new LocalizedAction("Usable"){
+			public void actionPerformed(ActionEvent e) {
+				viewOKGears();
+			}});
+		
+		viewGroup.add(new LocalizedAction("Good"){
+			public void actionPerformed(ActionEvent e) {
+				viewGoodGears();
+			}});
 
 		ActionGroup optionsGroup = actions.getActionGroup("Options");
-		optionsGroup.add(new MetricUnitSystemAction(this));
-		optionsGroup.add(new ImperialUnitSystemAction(this));
+		optionsGroup.add(new LocalizedAction("Metric"){
+			public void actionPerformed(ActionEvent e) {
+				setUnitSystem(UnitSystem.METRIC);
+			}});
+		optionsGroup.add(new LocalizedAction("Imperial"){
+			public void actionPerformed(ActionEvent e) {
+				setUnitSystem(UnitSystem.IMPERIAL);
+			}});
 
 		ActionGroup helpGroup = actions.getActionGroup("Help");
-		helpGroup.add(new HelpAction(this));
+		helpGroup.add(new LocalizedAction("Help"){
+			public void actionPerformed(ActionEvent e) {
+				help();
+			}});
+		
 		helpGroup.addSeparator();
-		helpGroup.add(new AboutAction(this));
+		helpGroup.add(new LocalizedAction("About"){
+			public void actionPerformed(ActionEvent e) {
+				about();
+			}});
 
 		JPanel toolbarPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		toolbarPanel.add(fileGroup.getToolBar());
@@ -604,6 +649,26 @@ public class Main implements ContentChangeListener {
 		frame.pack();
 		frame.setVisible(true);
 	}
+	
+	private void viewAllGears() {
+		getStyle().setGearVisibility(ChainlineStatus.ALL);
+		update();
+		getGearBoxOutput().dataChanged();
+	}
+	
+	private void viewOKGears() {
+		getStyle().setGearVisibility(ChainlineStatus.USABLE);
+		update();
+		getGearBoxOutput().dataChanged();
+	}
+	
+	private void viewGoodGears() {
+		getStyle().setGearVisibility(ChainlineStatus.GOOD);
+		update();
+		getGearBoxOutput().dataChanged();
+	}
+
+
 
 	private String getWindowTitle() {
 		String title = Messages.getString("Main.2");
