@@ -1,5 +1,7 @@
 /**
- * Created: 13.12.2005 08:36:01
+ * DriveTrainCSVWriter.java
+ *
+ * Created: 30.12.2005 13:34:55
  *
  * $Id$
  *
@@ -21,52 +23,35 @@
  * along with GCU; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package de.mutantenzoo.gcu.ui;
+package de.mutantenzoo.gcu.io;
 
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.io.PrintStream;
+import java.text.DecimalFormat;
+
+import de.mutantenzoo.gcu.model.DriveTrain;
+import de.mutantenzoo.gcu.model.Gear;
 
 /**
  * @author MKlemm
  *
  */
-public class MainFrameListener implements WindowListener {
+public class DriveTrainCSVWriter {
 
-	private Main main;
+	public static DecimalFormat format = new DecimalFormat("###0.##########");
 	
-	/**
-	 * 
-	 */
-	public MainFrameListener(Main main) {
-		this.main = main;
-	}
-
-	public void windowOpened(WindowEvent e) {
-		// Do nothing		
-	}
-
-	public void windowClosing(WindowEvent e) {
-		main.exit();		
-	}
-
-	public void windowClosed(WindowEvent e) {
-		// Do nothing
-	}
-
-	public void windowIconified(WindowEvent e) {
-		// Do nothing
-	}
-
-	public void windowDeiconified(WindowEvent e) {
-		// Do nothing
-	}
-
-	public void windowActivated(WindowEvent e) {
-		// Do nothing
-	}
-
-	public void windowDeactivated(WindowEvent e) {
-		// Do nothing
+	public static void writeCSV(PrintStream out, DriveTrain model) {
+		int count = model.getGearCount();
+		for(int n=0; n<count; n++) {
+			Gear g = model.getGear(n);
+			out.println(
+					g.getChainwheel().getSize()+";"+
+					g.getSprocket().getSize()+";"+
+					format.format(g.getTrans())+";"+
+					g.getDevelopment().getStringValue()+";"+
+					g.getSpeed().getStringValue()+";"+
+					format.format(g.getDragAngle())
+					);
+		}
 	}
 
 }

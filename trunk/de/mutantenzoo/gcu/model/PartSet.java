@@ -39,8 +39,8 @@ public class PartSet extends ArrayList<Part> {
 	 */
 	private static final long serialVersionUID = -5960600583842431652L;
 
-	private Measure partPitch = new Measure(6);
-	private Measure chainline = new Measure(65);
+	private Measure partPitch = new Measure(5.0);
+	private Measure chainline = new Measure(45.0);
 	
 	private UnitSystem unitSystem = null;
 	

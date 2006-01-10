@@ -50,7 +50,7 @@ public class DriveTrain implements Serializable {
 	private Measure cadence = new Measure(95);
 	private UnitSystem unitSystem = null;
 	
-	private Measure rearCenter = new Measure(600.0);
+	private Measure rearCenter = new Measure(420.0);
 	private Measure maxGoodDragAngle = new Measure(1.5);
 	private Measure maxOKDragAngle = new Measure(3.0);
 	private Gear lightweightGear = new Gear();

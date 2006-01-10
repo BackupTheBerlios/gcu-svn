@@ -25,15 +25,19 @@
  */
 package de.mutantenzoo.gcu.ui;
 
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.print.PageFormat;
+
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import de.mutantenzoo.gcu.model.Gear;
 import de.mutantenzoo.gcu.model.DriveTrain;
 import de.mutantenzoo.gcu.model.DriveTrainStyle;
+import de.mutantenzoo.gcu.model.Gear;
 import de.mutantenzoo.raf.ContentAdapter;
 import de.mutantenzoo.raf.ContentChangeListener;
 import de.mutantenzoo.raf.ContentEventSource;
@@ -161,6 +165,19 @@ public class DriveTrainTable extends JScrollPane implements ContentEventSource, 
 	
 	public void structureChanged() {
 		adapter.fireTableStructureChanged();
+	}
+
+	public void print(Graphics2D g, PageFormat pageFormat) {
+		Dimension origSize = displayTable.getSize();
+		displayTable.setSize((int)pageFormat.getImageableWidth(), (int)origSize.getHeight());
+		displayTable.doLayout();
+		displayTable.getTableHeader().setSize(displayTable.getWidth(),displayTable.getTableHeader().getHeight());
+		displayTable.getTableHeader().paint(g);
+		g.translate(0,1+displayTable.getTableHeader().getHeight());
+		displayTable.paint(g);
+		g.translate(0, displayTable.getHeight());
+		displayTable.setSize(origSize);
+		displayTable.getTableHeader().setSize(origSize.width, displayTable.getTableHeader().getHeight());
 	}
 
 }

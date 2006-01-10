@@ -36,10 +36,13 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
+import java.awt.print.PageFormat;
 
 import javax.swing.event.MouseInputListener;
 
@@ -114,6 +117,27 @@ public class DriveTrainDrawing extends ContentComponent {
 		Graphics2D g2 = (Graphics2D)g;
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.drawRect(0, 0, getBounds().width-1, getBounds().height -1);
+		draw(g2);
+	}
+	
+	public void print(Graphics2D g, PageFormat pageFormat) {
+		Dimension origSize = getSize();
+		AffineTransform origTransform = g.getTransform();
+		Shape origClip = g.getClip();
+		double aspectRatio = origSize.getWidth() / origSize.getHeight();
+		
+		setSize((int)(pageFormat.getImageableWidth() * aspectRatio), (int)pageFormat.getImageableWidth());
+		g.setClip(0, 0, getSize().height, getSize().width);
+		g.translate(pageFormat.getImageableWidth(), 0);
+		g.transform(new AffineTransform(0,1,-1,0,0,0));
+		draw(g);
+		g.setTransform(origTransform);
+		g.setClip(origClip);
+		setSize(origSize);
+	}
+	
+	protected void draw(Graphics2D g2) {
+		
 		installTransform(g2);
 		
 		float[] dash = model.getUnitSystem().getDashDotLine();

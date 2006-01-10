@@ -27,7 +27,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import javax.swing.JComponent;
@@ -56,14 +55,13 @@ public class GearRenderer extends JComponent implements TableCellRenderer {
 	 */
 	@Override
 	protected void paintComponent(Graphics g) {
-		Graphics2D g2d = (Graphics2D)g;
 		Dimension d = getSize();
-		g2d.setColor(color);
+		g.setColor(color);
 		int xOff = (int) (d.width * fillRatio);
-		g2d.fillRect(0, 0, xOff, d.height );
+		g.fillRect(0, 0, xOff, d.height );
 		if(selectedColor != null) {
-			g2d.setColor(selectedColor);
-			g2d.fillRect(xOff, 0, d.width, d.height);
+			g.setColor(selectedColor);
+			g.fillRect(xOff, 0, d.width, d.height);
 		}
 	}
 
@@ -127,6 +125,11 @@ public class GearRenderer extends JComponent implements TableCellRenderer {
 		public Model(ChainlineStatus status, double fillRatio) {
 			this.status = status;
 			this.fillRatio = fillRatio;
+		}
+		
+		@Override public String toString() {
+			Color c = getColorFromChainlineStatus(status);
+			return "<div style=\"width: "+(int)(fillRatio*100.0)+"%; height: 100%; background-color: rgb("+c.getRed()+","+c.getGreen()+","+c.getBlue()+");\" />";
 		}
 	}
 

@@ -22,7 +22,7 @@ public class MeasureDrawing {
 	private static final AffineTransform ROTATE = new AffineTransform(0,-1.0,1.0,0,0,0);
 
 	private boolean horizontal;
-	private Font font = new Font("Verdana", Font.PLAIN, 100);
+	private Font font = new Font("Verdana", Font.PLAIN, 8);
 	private Quantifiable model;
 	private double overlength = 2.0;
 	private float tipLength = 6.0f;
@@ -64,7 +64,7 @@ public class MeasureDrawing {
 		g.draw(l2);
 		arrow.paint(g, x1, arrowPos, x2, arrowPos);
 		TextLayout tl = new TextLayout(model.getStringValue(), font, g.getFontRenderContext());
-		double fontScaleFactor = fontSize / 100.0;
+		double fontScaleFactor = fontSize / 8.0;
 		AffineTransform trans = AffineTransform.getScaleInstance(fontScaleFactor, fontScaleFactor);
 		Shape textShape = tl.getOutline(trans);
 		Rectangle2D textBounds = textShape.getBounds();
@@ -90,7 +90,7 @@ public class MeasureDrawing {
 		g.draw(l2);
 		arrow.paint(g, arrowPos, y1, arrowPos, y2);
 		TextLayout tl = new TextLayout(model.getStringValue(), font, g.getFontRenderContext());
-		double fontScaleFactor = fontSize / 100.0;
+		double fontScaleFactor = fontSize / 8.0;
 		AffineTransform trans = AffineTransform.getScaleInstance(fontScaleFactor, fontScaleFactor);
 		trans.concatenate(ROTATE);
 		Shape textShape = tl.getOutline(trans);

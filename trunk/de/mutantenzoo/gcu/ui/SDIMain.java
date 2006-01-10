@@ -93,7 +93,7 @@ import de.mutantenzoo.raf.LocalizedAction;
  * @author MKlemm
  *
  */
-public class Main implements ContentChangeListener, Printable {
+public class SDIMain implements ContentChangeListener, Printable {
 
 
 	private static final GridBagConstraints gbc = new GridBagConstraints();
@@ -130,7 +130,7 @@ public class Main implements ContentChangeListener, Printable {
 	private ZoomInput zoomInput = new ZoomInput(model, style);
 	private ActionContainer actions;
 
-	public Main() {
+	public SDIMain() {
 		initComponents();
 		if(startupFile != null) {
 			loadFile(new File(startupFile));
@@ -288,7 +288,7 @@ public class Main implements ContentChangeListener, Printable {
 
 	private JMenuItem createStandardMenuItem(String textKey, String iconName, int mnemonicKey, char keyChar, Action action) {
 		JMenuItem menuItem = new JMenuItem(action);
-		menuItem.setIcon(new ImageIcon(Main.class.getResource("/toolbarButtonGraphics/general/"+iconName+"16.gif")));
+		menuItem.setIcon(new ImageIcon(SDIMain.class.getResource("/toolbarButtonGraphics/general/"+iconName+"16.gif")));
 		menuItem.setText(Messages.getString(textKey));
 		menuItem.setMnemonic(mnemonicKey);
 		menuItem.setAccelerator(KeyStroke.getKeyStroke(keyChar, KeyEvent.CTRL_MASK));
@@ -367,7 +367,7 @@ public class Main implements ContentChangeListener, Printable {
 		// creating and showing this application's GUI.
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				new Main();
+				new SDIMain();
 			}
 		});
 	}

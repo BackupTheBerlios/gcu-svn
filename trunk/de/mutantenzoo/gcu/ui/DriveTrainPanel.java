@@ -31,7 +31,6 @@ import static java.awt.GridBagConstraints.VERTICAL;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -39,10 +38,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
@@ -57,22 +52,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 
-import javax.swing.Action;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.KeyStroke;
 import javax.swing.event.ChangeEvent;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.text.DefaultEditorKit;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
@@ -83,22 +70,22 @@ import de.mutantenzoo.gcu.model.ChainlineStatus;
 import de.mutantenzoo.gcu.model.DriveTrain;
 import de.mutantenzoo.gcu.model.DriveTrainStyle;
 import de.mutantenzoo.gcu.units.UnitSystem;
-import de.mutantenzoo.raf.ActionContainer;
-import de.mutantenzoo.raf.ActionGroup;
 import de.mutantenzoo.raf.ContentChangeListener;
 import de.mutantenzoo.raf.HelpPane;
-import de.mutantenzoo.raf.LocalizedAction;
 
 /**
  * @author MKlemm
  *
  */
-public class Main implements ContentChangeListener, Printable {
+public class DriveTrainPanel extends JPanel implements ContentChangeListener, Printable {
 
 
+	/**
+	 * Generated SUID
+	 */
+	private static final long serialVersionUID = -851432026795134285L;
+	
 	private static final GridBagConstraints gbc = new GridBagConstraints();
-	private static String startupFile = null;
-	private JFrame mainFrame;
 	private static final int DEFAULT_CHAINWHEEL_COUNT = 3;
 	private static final int DEFAULT_SPROCKET_COUNT = 10;
 
@@ -121,34 +108,18 @@ public class Main implements ContentChangeListener, Printable {
 	private GeneralTranslationInput generalTranslationInput = new GeneralTranslationInput(model);
 	private GeneralGeometryInput generalGeometryInput = new GeneralGeometryInput(model);
 
-	private JButton recomputeButton = new JButton();
-	private JPanel mainPanel;
-
 	private DriveTrainTable driveTrainOutput = new DriveTrainTable(model, style);
-
 	private DriveTrainDrawing driveTrainDrawing = new DriveTrainDrawing(model, style);
-	private ZoomInput zoomInput = new ZoomInput(model, style);
-	private ActionContainer actions;
 
-	public Main() {
+	private ZoomInput zoomInput = new ZoomInput(model, style);
+
+	public DriveTrainPanel() {
+		super(new GridBagLayout());
 		initComponents();
-		if(startupFile != null) {
-			loadFile(new File(startupFile));
-		}
 	}
 
-	@SuppressWarnings("serial")
 	public void initComponents() {
-		JFrame.setDefaultLookAndFeelDecorated(true);
-		JDialog.setDefaultLookAndFeelDecorated(true);
 		model.reset();
-		mainFrame = new JFrame(Messages.getString("Main.2")); //$NON-NLS-1$
-		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		mainFrame.addWindowListener(new WindowAdapter(){@Override public void windowClosing(WindowEvent e) {exit();}});
-		mainFrame.getRootPane().setDefaultButton(recomputeButton);
-		mainFrame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/bicycle.png")));		actions = new ActionContainer();
-		mainFrame.setJMenuBar(actions.getMenuBar());
-		mainPanel = new JPanel(new GridBagLayout());
 		JTabbedPane tabbedPane = new JTabbedPane();
 
 		getTranslationInput(tabbedPane);
@@ -158,96 +129,7 @@ public class Main implements ContentChangeListener, Printable {
 		gbc.gridwidth = 1;
 		gbc.gridheight = 2;
 		gbc.fill = VERTICAL;
-		mainPanel.add(tabbedPane, gbc);
-		
-		ActionGroup fileGroup = actions.getActionGroup("File");
-		fileGroup.add(new LocalizedAction("New"){
-			public void actionPerformed(ActionEvent e) {
-				newProfile();
-			}});
-		
-		fileGroup.addSeparator();
-		
-		fileGroup.add(new LocalizedAction("Open") {
-			public void actionPerformed(ActionEvent e) {
-				open();
-			}});
-		
-		fileGroup.add(new LocalizedAction("Save") {	public void actionPerformed(ActionEvent e) {save();}});
-		
-		fileGroup.add(new LocalizedAction("SaveAs") {
-			public void actionPerformed(ActionEvent e) {
-				saveAs();
-			}});
-
-		fileGroup.addSeparator();
-		fileGroup.add(new LocalizedAction("Print") {
-			public void actionPerformed(ActionEvent e) {
-				print();
-			}});
-
-		fileGroup.add(new LocalizedAction("Export") {
-			public void actionPerformed(ActionEvent e) {
-				export();
-			}});
-		
-		fileGroup.addSeparator();
-		fileGroup.add(new LocalizedAction("Exit"){
-			public void actionPerformed(ActionEvent e) {
-				exit();
-			}});
-
-		
-		ActionGroup editGroup = actions.getActionGroup("Edit");
-		JMenu editMenu = editGroup.getMenu();
-		editMenu.setMnemonic(KeyEvent.VK_E);
-		
-		editMenu.add(createStandardMenuItem("Edit.Cut", "Cut", KeyEvent.VK_T, 'X', new DefaultEditorKit.CutAction()));
-		editMenu.add(createStandardMenuItem("Edit.Copy", "Copy", KeyEvent.VK_C, 'C', new DefaultEditorKit.CopyAction()));
-		editMenu.add(createStandardMenuItem("Edit.Paste", "Paste", KeyEvent.VK_P, 'V', new DefaultEditorKit.PasteAction()));
-		
-		
-		ActionGroup viewGroup = actions.getActionGroup("View");
-		viewGroup.add(new LocalizedAction("All") {
-			public void actionPerformed(ActionEvent e) {
-				viewAllGears();
-			}});
-		
-		viewGroup.add(new LocalizedAction("Usable"){
-			public void actionPerformed(ActionEvent e) {
-				viewOKGears();
-			}});
-		
-		viewGroup.add(new LocalizedAction("Good"){
-			public void actionPerformed(ActionEvent e) {
-				viewGoodGears();
-			}});
-
-		ActionGroup optionsGroup = actions.getActionGroup("Options");
-		optionsGroup.add(new LocalizedAction("Metric"){
-			public void actionPerformed(ActionEvent e) {
-				setUnitSystem(UnitSystem.METRIC);
-			}});
-		optionsGroup.add(new LocalizedAction("Imperial"){
-			public void actionPerformed(ActionEvent e) {
-				setUnitSystem(UnitSystem.IMPERIAL);
-			}});
-
-		ActionGroup helpGroup = actions.getActionGroup("Help");
-		helpGroup.add(new LocalizedAction("Help"){
-			public void actionPerformed(ActionEvent e) {
-				help();
-			}});
-		
-		helpGroup.addSeparator();
-		helpGroup.add(new LocalizedAction("About"){
-			public void actionPerformed(ActionEvent e) {
-				about();
-			}});
-
-		JPanel toolbarPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		toolbarPanel.add(fileGroup.getToolBar());
-		toolbarPanel.add(viewGroup.getToolBar());
+		add(tabbedPane, gbc);
 		
 		gbc.gridheight = 2;
 		gbc.fill = VERTICAL;		
@@ -256,7 +138,7 @@ public class Main implements ContentChangeListener, Printable {
 		gbc.gridx = 1;
 		gbc.weightx = 0;
 		gbc.weighty = 1.0;
-		mainPanel.add(zoomInput, gbc);
+		add(zoomInput, gbc);
 		zoomInput.setMinimumSize(new Dimension(driveTrainDrawing.getPreferredSize().width, zoomInput.getPreferredSize().height));
 		zoomInput.addContentChangeListener(this);
 		
@@ -267,7 +149,7 @@ public class Main implements ContentChangeListener, Printable {
 		gbc.gridx = 2;
 		gbc.gridy = 0;
 		driveTrainDrawing.setMinimumSize(driveTrainDrawing.getPreferredSize());
-		mainPanel.add(driveTrainDrawing, gbc);
+		add(driveTrainDrawing, gbc);
 
 		gbc.anchor = NORTHWEST;
 		gbc.gridheight = 1;
@@ -277,23 +159,9 @@ public class Main implements ContentChangeListener, Printable {
 		gbc.weighty = 1.0;
 		gbc.fill = BOTH;
 		gbc.gridwidth = REMAINDER;
-		mainPanel.add(driveTrainOutput, gbc);
-
-		mainFrame.getContentPane().add(toolbarPanel,
-				BorderLayout.PAGE_START);
-		mainFrame.getContentPane().add(mainPanel, BorderLayout.CENTER);
-		mainFrame.pack();
-		mainFrame.setVisible(true);
+		add(driveTrainOutput, gbc);
 	}
 
-	private JMenuItem createStandardMenuItem(String textKey, String iconName, int mnemonicKey, char keyChar, Action action) {
-		JMenuItem menuItem = new JMenuItem(action);
-		menuItem.setIcon(new ImageIcon(Main.class.getResource("/toolbarButtonGraphics/general/"+iconName+"16.gif")));
-		menuItem.setText(Messages.getString(textKey));
-		menuItem.setMnemonic(mnemonicKey);
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(keyChar, KeyEvent.CTRL_MASK));
-		return menuItem;
-	}
 	/**
 	 * @param tabbedPane
 	 */
@@ -358,20 +226,6 @@ public class Main implements ContentChangeListener, Printable {
 		update();
 	}
 
-	public static void main(String[] args) throws InterruptedException {
-		System.setProperty("swing.aatext","true");
-		if(args.length > 0) {
-			startupFile = args[0];
-		}
-		// Schedule a job for the event-dispatching thread:
-		// creating and showing this application's GUI.
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				new Main();
-			}
-		});
-	}
-
 	/**
 	 * @return Returns the model.
 	 */
@@ -404,7 +258,6 @@ public class Main implements ContentChangeListener, Printable {
 	}
 
 	public void update() {
-		mainFrame.setTitle(getWindowTitle());
 		generalTranslationInput.update();
 		generalGeometryInput.update();
 		driveTrainDrawing.update();
@@ -415,11 +268,7 @@ public class Main implements ContentChangeListener, Printable {
 		sprocketGeometryInput.update();
 	}
 
-	public JFrame getMainFrame() {
-		return mainFrame;
-	}
-
-	private void newProfile() {
+	void newProfile() {
 		if (saveModified()) {
 			setModel(new DriveTrain(DEFAULT_CHAINWHEEL_COUNT, DEFAULT_SPROCKET_COUNT));
 		}
@@ -429,14 +278,14 @@ public class Main implements ContentChangeListener, Printable {
 	 * Prompts the user for a file to open and opens the specified file
 	 * 
 	 */
-	private void open() {
+	void open() {
 		if (saveModified()) {
 			JFileChooser fileChooser = new JFileChooser();
 			FileFilter binaryFormatFilter = new BinaryFormatFileFilter();
 			FileFilter xmlFormatFilter = new XMLFormatFileFilter();
 			fileChooser.addChoosableFileFilter(binaryFormatFilter);
 			fileChooser.addChoosableFileFilter(xmlFormatFilter);
-			int retVal = fileChooser.showOpenDialog(mainFrame.getRootPane());
+			int retVal = fileChooser.showOpenDialog(this.getRootPane());
 			if (retVal == JFileChooser.APPROVE_OPTION) {
 				File selectedFile = fileChooser.getSelectedFile();
 				loadFile(selectedFile);
@@ -447,7 +296,7 @@ public class Main implements ContentChangeListener, Printable {
 	/**
 	 * @param selectedFile
 	 */
-	private void loadBinaryFile(File selectedFile) {
+	void loadBinaryFile(File selectedFile) {
 		try {
 			ObjectInputStream or = new ObjectInputStream(
 					new FileInputStream(selectedFile));
@@ -459,14 +308,14 @@ public class Main implements ContentChangeListener, Printable {
 		} catch (IOException iox) {
 			JOptionPane
 					.showMessageDialog(
-							mainFrame,
+							this,
 							Messages
 									.format(
 											"Main.19", iox.getLocalizedMessage()), Messages.getString("Main.20"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
 		} catch (ClassNotFoundException ex) {
 			JOptionPane
 					.showMessageDialog(
-							mainFrame,
+							this,
 							Messages.getString("Main.21"), Messages.getString("Main.22"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
@@ -485,14 +334,14 @@ public class Main implements ContentChangeListener, Printable {
 		} catch (IOException iox) {
 			JOptionPane
 					.showMessageDialog(
-							mainFrame,
+							this,
 							Messages
 									.format(
 											"Main.19", iox.getLocalizedMessage()), Messages.getString("Main.20"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
 		} catch (Exception ex) {
 			JOptionPane
 					.showMessageDialog(
-							mainFrame,
+							this,
 							Messages.getString("XMLError"), Messages.getString("Main.22"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
@@ -521,7 +370,7 @@ public class Main implements ContentChangeListener, Printable {
 		fileChooser.addChoosableFileFilter(binaryFormatFilter);
 		fileChooser.addChoosableFileFilter(xmlFormatFilter);
 
-		int retVal = fileChooser.showSaveDialog(mainFrame.getRootPane());
+		int retVal = fileChooser.showSaveDialog(this);
 		if (retVal == JFileChooser.APPROVE_OPTION) {
 			boolean binaryFormatSelected = fileChooser.getFileFilter().getDescription().equals(binaryFormatFilter.getDescription()); 
 			File selectedFile = fileChooser.getSelectedFile();
@@ -540,7 +389,7 @@ public class Main implements ContentChangeListener, Printable {
 				if (selectedFile.canWrite()) {
 					int chosen = JOptionPane
 							.showConfirmDialog(
-									mainFrame,
+									this,
 									Messages.getString("Main.11"), Messages.getString("Main.12"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
 					if (chosen == JOptionPane.NO_OPTION) {
 						return;
@@ -548,7 +397,7 @@ public class Main implements ContentChangeListener, Printable {
 				} else {
 					JOptionPane
 							.showMessageDialog(
-									mainFrame,
+									this,
 									Messages.getString("Main.13"), Messages.getString("Main.14"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
 					return;
 				}
@@ -577,9 +426,8 @@ public class Main implements ContentChangeListener, Printable {
 			ow.writeObject(model);
 			ow.close();
 			model.reset();
-			mainFrame.setTitle(getWindowTitle());
 		} catch (IOException iox) {
-			JOptionPane.showMessageDialog(mainFrame, Messages.format(
+			JOptionPane.showMessageDialog(this, Messages.format(
 					"Main.15", iox.getLocalizedMessage()), //$NON-NLS-1$ 
 					Messages.getString("Main.16"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 		}
@@ -596,34 +444,25 @@ public class Main implements ContentChangeListener, Printable {
 			DriveTrainEncoder.encode(ow, model);
 			ow.close();
 			model.reset();
-			mainFrame.setTitle(getWindowTitle());
 		} catch (IOException iox) {
-			JOptionPane.showMessageDialog(mainFrame, Messages.format(
+			JOptionPane.showMessageDialog(this, Messages.format(
 					"Main.15", iox.getLocalizedMessage()), //$NON-NLS-1$ 
 					Messages.getString("Main.16"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 		} catch (ParserConfigurationException iox) {
-			JOptionPane.showMessageDialog(mainFrame, Messages.format(
+			JOptionPane.showMessageDialog(this, Messages.format(
 					"ParserConfigurationException", iox.getLocalizedMessage()), //$NON-NLS-1$ 
 					Messages.getString("Main.16"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 		} catch (TransformerException iox) {
-			JOptionPane.showMessageDialog(mainFrame, Messages.format(
+			JOptionPane.showMessageDialog(this, Messages.format(
 					"TransformerException", iox.getLocalizedMessage()), //$NON-NLS-1$ 
 					Messages.getString("Main.16"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 		}
 
 	}
 
-	void exit() {
-		// GearBoxWriter.print(model);
-		if (saveModified()) {
-			mainFrame.dispose();
-			System.exit(0);
-		}
-	}
-
 	private boolean saveModified() {
 		if (model.isModified()) {
-			int selectedOption = JOptionPane.showConfirmDialog(mainFrame,
+			int selectedOption = JOptionPane.showConfirmDialog(this,
 					Messages.getString("UnsavedChanges.Message"), Messages
 							.getString("UnsavedChanges.Title"),
 					JOptionPane.YES_NO_CANCEL_OPTION,
@@ -661,7 +500,8 @@ public class Main implements ContentChangeListener, Printable {
 		label.setAlignmentX(JLabel.CENTER_ALIGNMENT);
 		panel.add(label, BorderLayout.NORTH);
 		panel.add(helpPane, BorderLayout.CENTER);
-		JOptionPane.showMessageDialog(mainFrame,
+		JOptionPane.showMessageDialog(
+				this,
 				panel,
 				Messages.getString("Help.About.ShortDescription"),
 				JOptionPane.INFORMATION_MESSAGE);
@@ -677,25 +517,25 @@ public class Main implements ContentChangeListener, Printable {
 		frame.setVisible(true);
 	}
 	
-	private void viewAllGears() {
+	void viewAllGears() {
 		getStyle().setGearVisibility(ChainlineStatus.ALL);
 		update();
 		getGearBoxOutput().dataChanged();
 	}
 	
-	private void viewOKGears() {
+	void viewOKGears() {
 		getStyle().setGearVisibility(ChainlineStatus.USABLE);
 		update();
 		getGearBoxOutput().dataChanged();
 	}
 	
-	private void viewGoodGears() {
+	void viewGoodGears() {
 		getStyle().setGearVisibility(ChainlineStatus.GOOD);
 		update();
 		getGearBoxOutput().dataChanged();
 	}
 	
-	private void export() {
+	void export() {
 		JFileChooser fileChooser = new JFileChooser();
 		FileFilter htmlFilter = new HTMLFileFilter();
 		FileFilter csvFilter = new CSVFileFilter();
@@ -703,7 +543,7 @@ public class Main implements ContentChangeListener, Printable {
 		fileChooser.addChoosableFileFilter(htmlFilter);
 		fileChooser.addChoosableFileFilter(csvFilter);
 
-		int retVal = fileChooser.showSaveDialog(mainFrame.getRootPane());
+		int retVal = fileChooser.showSaveDialog(this);
 		if (retVal == JFileChooser.APPROVE_OPTION) {
 			File selectedFile = fileChooser.getSelectedFile();
 			boolean htmlSelected = fileChooser.getFileFilter() == htmlFilter;
@@ -721,7 +561,7 @@ public class Main implements ContentChangeListener, Printable {
 				if (selectedFile.canWrite()) {
 					int chosen = JOptionPane
 							.showConfirmDialog(
-									mainFrame,
+									this,
 									Messages.getString("Main.11"), Messages.getString("Main.12"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
 					if (chosen == JOptionPane.NO_OPTION) {
 						return;
@@ -729,7 +569,7 @@ public class Main implements ContentChangeListener, Printable {
 				} else {
 					JOptionPane
 							.showMessageDialog(
-									mainFrame,
+									this,
 									Messages.getString("Main.13"), Messages.getString("Main.14"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
 					return;
 				}
@@ -744,7 +584,7 @@ public class Main implements ContentChangeListener, Printable {
 				}
 				ps.close();
 			} catch (FileNotFoundException e) {
-				JOptionPane.showMessageDialog(mainFrame, Messages.format(
+				JOptionPane.showMessageDialog(this, Messages.format(
 						"Main.15", e.getLocalizedMessage()), //$NON-NLS-1$ 
 						Messages.getString("Main.16"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 
@@ -754,7 +594,7 @@ public class Main implements ContentChangeListener, Printable {
 
 	}
 	
-	private void print() {
+	void print() {
 		PrinterJob pj = PrinterJob.getPrinterJob();
 		pj.setPrintable(this);
 		pj.setJobName(Messages.getString("GCUPrintJob"));
@@ -762,7 +602,7 @@ public class Main implements ContentChangeListener, Printable {
 			try {
 				pj.print();
 			} catch (PrinterException e) {
-				JOptionPane.showMessageDialog(mainFrame, Messages.format(
+				JOptionPane.showMessageDialog(this, Messages.format(
 						"PrinterException", e.getLocalizedMessage()), //$NON-NLS-1$ 
 						Messages.getString("Main.16"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 
@@ -791,7 +631,7 @@ public class Main implements ContentChangeListener, Printable {
 	}
 
 
-	private String getWindowTitle() {
+	String getWindowTitle() {
 		String title = Messages.getString("Main.2");
 		String fileName;
 		if (model.getFile() == null) {

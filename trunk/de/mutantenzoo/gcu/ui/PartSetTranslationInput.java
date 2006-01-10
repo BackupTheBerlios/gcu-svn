@@ -23,16 +23,14 @@
  */
 package de.mutantenzoo.gcu.ui;
 
-import static java.awt.GridBagConstraints.*;
-
 import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
@@ -42,10 +40,11 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import de.mutantenzoo.gcu.model.PartSet;
+import de.mutantenzoo.raf.ContentAdapter;
 import de.mutantenzoo.raf.ContentChangeListener;
-import de.mutantenzoo.raf.ContentPanel;
+import de.mutantenzoo.raf.ContentEventSource;
 
-public class PartSetTranslationInput extends ContentPanel implements ContentChangeListener {
+public class PartSetTranslationInput extends JScrollPane implements ContentEventSource, ContentChangeListener {
 
 	/**
 	 * 
@@ -55,14 +54,13 @@ public class PartSetTranslationInput extends ContentPanel implements ContentChan
 	private static final ImageIcon addIcon = new ImageIcon(PartSetTranslationInput.class.getResource("/toolbarButtonGraphics/general/Add16.gif")); //$NON-NLS-1$
 	private static final ImageIcon removeIcon = new ImageIcon(PartSetTranslationInput.class.getResource("/toolbarButtonGraphics/general/Delete16.gif")); //$NON-NLS-1$
 
-	private static final GridBagConstraints gbc = new GridBagConstraints();
-	
+	private ContentAdapter contentAdapter = new ContentAdapter();
 	private PartSet model = null;
 	private JTable partTable;
 	private PartTableModel tableModel = new PartTableModel();
 	
 	public PartSetTranslationInput(PartSet model, String title) {
-		super(new GridBagLayout());
+		super();
 		this.model = model;
 		setBorder(BorderFactory.createTitledBorder(title));
 		
@@ -84,13 +82,8 @@ public class PartSetTranslationInput extends ContentPanel implements ContentChan
 			}
 		
 		});
-		gbc.gridwidth = REMAINDER;
-		gbc.anchor = NORTHWEST;
-		gbc.fill = NONE;
-		gbc.weighty = 0;
-		add(partTable.getTableHeader(), gbc);
-		gbc.weighty = 0;
-		add(partTable, gbc);
+		partTable.setPreferredScrollableViewportSize(new Dimension(100, (model.size()+1)*partTable.getRowHeight()));
+		setViewportView(partTable);
 		update();
 	}
 
@@ -155,7 +148,7 @@ public class PartSetTranslationInput extends ContentPanel implements ContentChan
 				}
 			} else if(columnIndex == 1) {
 				if(rowIndex == model.size()) {
-					return null;
+					return "";
 				} else {
 					return rowIndex +1;
 				}
@@ -237,6 +230,18 @@ public class PartSetTranslationInput extends ContentPanel implements ContentChan
 			return label;
 		}
 		
+	}
+
+	public void addContentChangeListener(ContentChangeListener contentChangeListener) {
+		contentAdapter.addContentChangeListener(contentChangeListener);
+	}
+	
+	protected void fireContentChanged() {
+		contentAdapter.fireContentChanged();
+	}
+
+	protected void fireStyleChanged() {
+		contentAdapter.fireStyleChanged();
 	}
 	
 }
