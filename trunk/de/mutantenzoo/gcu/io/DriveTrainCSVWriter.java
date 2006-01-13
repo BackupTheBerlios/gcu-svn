@@ -29,8 +29,6 @@ import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.util.Collection;
 
-import sun.security.krb5.internal.crypto.m;
-
 import de.mutantenzoo.gcu.model.DriveTrain;
 import de.mutantenzoo.gcu.model.Gear;
 

@@ -38,4 +38,6 @@ public interface GearView {
 	void viewOKGears();
 	void viewGoodGears();
 	void setUnitSystem(UnitSystem unitSystem);
+	boolean saveAs();
+	boolean close();
 }

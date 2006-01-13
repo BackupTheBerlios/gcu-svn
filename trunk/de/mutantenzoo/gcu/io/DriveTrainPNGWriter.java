@@ -25,18 +25,30 @@
  */
 package de.mutantenzoo.gcu.io;
 
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.OutputStream;
+
+import javax.imageio.ImageIO;
+
+import de.mutantenzoo.gcu.ui.DriveTrainComparisonView;
+
 /**
  * @author MKlemm
  *
  */
 public class DriveTrainPNGWriter {
 
-	/**
-	 * 
-	 */
-	public DriveTrainPNGWriter() {
-		super();
-		// TODO Auto-generated constructor stub
+	public static void writePNG(OutputStream out, DriveTrainComparisonView view, int width, int height) throws IOException {
+		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = image.createGraphics();
+		Dimension origSize = view.getSize();
+		view.setSize(width, height);
+		view.paint(g);
+		view.setSize(origSize);
+		ImageIO.write(image, "png", out);
 	}
 
 }

@@ -64,7 +64,6 @@ public class DriveTrain implements Serializable {
 	private boolean unitSystemChanged = false;
 	private UUID uuid;
 	private String name;
-	
 
 	/**
 	 * @return Returns the name.
@@ -308,6 +307,7 @@ public class DriveTrain implements Serializable {
 	public void setUUID(UUID uuid) {
 		this.uuid = uuid;
 	}
+
 	
 	
 

@@ -140,7 +140,7 @@ public class Main implements ContentChangeListener {
 		
 		fileGroup.add(new LocalizedAction("SaveAs") {
 			public void actionPerformed(ActionEvent e) {
-				getCurrentPanel().saveAs();
+				getCurrentView().saveAs();
 			}});
 
 		fileGroup.add(new LocalizedAction("SaveAll") {
@@ -247,8 +247,7 @@ public class Main implements ContentChangeListener {
 			setActionsEnabled(false);
 		}
 		comparisonView.removeModel(getCurrentPanel().getModel());
-		getCurrentPanel().close();
-		
+		getCurrentPanel().close();		
 	}
 	
 	private void setActionsEnabled(boolean enabled) {
@@ -281,18 +280,14 @@ public class Main implements ContentChangeListener {
 	private void setPanelSelected(boolean enabled) {
 		ActionGroup file = actions.getActionGroup("File");
 		file.getAction("Save").setEnabled(enabled);
-		file.getAction("SaveAs").setEnabled(enabled);
 		file.getAction("Close").setEnabled(enabled);
 	}
 
 	private void closeAll() {
 		for(int n=0; n<mainPanel.getTabCount(); n++) {
-			Component component = mainPanel.getComponentAt(n);
-			if(component instanceof DriveTrainPanel) {
-				DriveTrainPanel panel = (DriveTrainPanel)component;
-				if(panel.close()) {
-					comparisonView.removeModel(panel.getModel());
-				}
+			GearView view = (GearView)mainPanel.getComponentAt(n);
+			if(view.close()) {
+				comparisonView.removeModel(((DriveTrainPanel)view).getModel());
 			}
 		}
 		if(mainPanel.getTabCount() == 1) {
@@ -333,14 +328,18 @@ public class Main implements ContentChangeListener {
 	 */
 	private void open() {
 		JFileChooser fileChooser = new JFileChooser();
-		FileFilter binaryFormatFilter = new BinaryFormatFileFilter();
-		FileFilter xmlFormatFilter = new XMLFormatFileFilter();
+		FileFilter binaryFormatFilter = Filters.BINARY;
+		FileFilter xmlFormatFilter = Filters.XML;
+		fileChooser.setMultiSelectionEnabled(true);
 		fileChooser.addChoosableFileFilter(binaryFormatFilter);
 		fileChooser.addChoosableFileFilter(xmlFormatFilter);
 		int retVal = fileChooser.showOpenDialog(mainFrame.getRootPane());
 		if (retVal == JFileChooser.APPROVE_OPTION) {
-			File selectedFile = fileChooser.getSelectedFile();
-			loadFile(selectedFile);
+			File[] selectedFiles = fileChooser.getSelectedFiles();
+			for(int n=0; n<selectedFiles.length; n++) {
+				File selectedFile = selectedFiles[n];
+				loadFile(selectedFile);
+			}
 		}
 	}
 
@@ -397,11 +396,16 @@ public class Main implements ContentChangeListener {
 	private void loadXMLFile(File selectedFile) {
 		try {
 			FileInputStream is = new FileInputStream(selectedFile);
-			DriveTrain newModel = DriveTrainEncoder.decode(is);
+			DriveTrain[] newModels = DriveTrainEncoder.decode(is);
 			is.close();
-			newModel.setFile(selectedFile);
-			newModel.reset();
-			createView(newModel);
+			for(int n=0; n<newModels.length; n++) {
+				DriveTrain newModel = newModels[n];
+				if(newModels.length==1) {
+					newModel.setFile(selectedFile);
+				}
+				newModel.reset();
+				createView(newModel);
+			}
 		} catch (IOException iox) {
 			JOptionPane
 					.showMessageDialog(

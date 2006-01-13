@@ -36,10 +36,6 @@ import de.mutantenzoo.gcu.ui.TableAdapter;
  */
 public class DriveTrainHTMLWriter {
 
-	private static void writeHeader(PrintStream out, String title) {
-		
-	}
-	
 	public static void writeHTML(PrintStream out, TableAdapter model) {
 		out.println("<html>");
 		out.println("  <head>");

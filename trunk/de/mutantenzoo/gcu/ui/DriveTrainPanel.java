@@ -277,10 +277,10 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 	 * Prompts the user for a filename and saves the data to the selected file
 	 * 
 	 */
-	boolean saveAs() {
+	public boolean saveAs() {
 		JFileChooser fileChooser = new JFileChooser();
-		FileFilter binaryFormatFilter = new BinaryFormatFileFilter();
-		FileFilter xmlFormatFilter = new XMLFormatFileFilter();
+		FileFilter binaryFormatFilter = Filters.BINARY;
+		FileFilter xmlFormatFilter = Filters.XML;
 		fileChooser.addChoosableFileFilter(binaryFormatFilter);
 		fileChooser.addChoosableFileFilter(xmlFormatFilter);
 		if(model.getFile() != null) {
@@ -443,8 +443,8 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 	
 	public void export() {
 		JFileChooser fileChooser = new JFileChooser();
-		FileFilter htmlFilter = new HTMLFileFilter();
-		FileFilter csvFilter = new CSVFileFilter();
+		FileFilter htmlFilter = Filters.HTML;
+		FileFilter csvFilter = Filters.CSV;
 		fileChooser.setFileFilter(null);
 		fileChooser.addChoosableFileFilter(htmlFilter);
 		fileChooser.addChoosableFileFilter(csvFilter);
@@ -536,7 +536,7 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 		}
 	}
 
-	boolean close() {
+	public boolean close() {
 		if(saveModified()) {
 			getParent().remove(this);
 			return true;
@@ -576,40 +576,6 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 	}
 
 
-	/**
-	 * @author MKlemm
-	 *
-	 */
-	public class HTMLFileFilter extends FileFilter {
-		@Override
-		public boolean accept(File file) {
-			return file.getName().toLowerCase().endsWith(".htm") //$NON-NLS-1$
-			|| file.getName().toLowerCase().endsWith(".html") //$NON-NLS-1$
-			|| file.isDirectory(); 
-		}
-
-		@Override
-		public String getDescription() {
-			return Messages.getString("HTMLFileFormat"); //$NON-NLS-1$
-		}
-	}
-
-	/**
-	 * @author MKlemm
-	 *
-	 */
-	public class CSVFileFilter extends FileFilter {
-		@Override
-		public boolean accept(File file) {
-			return file.getName().toLowerCase().endsWith(".csv") //$NON-NLS-1$
-			|| file.isDirectory(); 
-		}
-
-		@Override
-		public String getDescription() {
-			return Messages.getString("CSVFileFormat"); //$NON-NLS-1$
-		}
-	}
 
 	public Icon getIcon() {
 		if(model.isModified()) {
