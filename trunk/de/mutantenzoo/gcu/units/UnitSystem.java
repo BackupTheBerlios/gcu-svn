@@ -72,4 +72,5 @@ public interface UnitSystem extends Serializable {
 	String getDevelopmentNotion();
 	double getRequiredMargin();
 	double getMeasureFontSize();
+	double translateDevelopment(double otherValue);
 }

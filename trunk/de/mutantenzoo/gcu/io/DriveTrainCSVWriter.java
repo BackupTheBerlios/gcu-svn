@@ -27,6 +27,9 @@ package de.mutantenzoo.gcu.io;
 
 import java.io.PrintStream;
 import java.text.DecimalFormat;
+import java.util.Collection;
+
+import sun.security.krb5.internal.crypto.m;
 
 import de.mutantenzoo.gcu.model.DriveTrain;
 import de.mutantenzoo.gcu.model.Gear;
@@ -44,6 +47,7 @@ public class DriveTrainCSVWriter {
 		for(int n=0; n<count; n++) {
 			Gear g = model.getGear(n);
 			out.println(
+					model.getName()+";"+
 					g.getChainwheel().getSize()+";"+
 					g.getSprocket().getSize()+";"+
 					format.format(g.getTrans())+";"+
@@ -51,6 +55,12 @@ public class DriveTrainCSVWriter {
 					g.getSpeed().getStringValue()+";"+
 					format.format(g.getDragAngle())
 					);
+		}
+	}
+	
+	public static void writeCSV(PrintStream out, Collection<DriveTrain> models) {
+		for(DriveTrain model : models) {
+			writeCSV(out, model);
 		}
 	}
 

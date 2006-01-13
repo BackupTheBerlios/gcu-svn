@@ -26,6 +26,7 @@ package de.mutantenzoo.gcu.model;
 import java.io.File;
 import java.io.Serializable;
 import java.text.ParseException;
+import java.util.UUID;
 
 import de.mutantenzoo.gcu.units.UnitSystem;
 import de.mutantenzoo.raf.Measure;
@@ -37,10 +38,11 @@ import de.mutantenzoo.raf.Quantifiable;
  */
 public class DriveTrain implements Serializable {
 
+
 	/**
 	 * Generated SUID
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 6846924453453949891L;
 
 	private PartSet chainwheels;
 
@@ -60,12 +62,35 @@ public class DriveTrain implements Serializable {
 	private WheelDiameter wheelDiameter = new WheelDiameter();
 
 	private boolean unitSystemChanged = false;
+	private UUID uuid;
+	private String name;
 	
+
+	/**
+	 * @return Returns the name.
+	 */
+	public String getName() {
+		if(name != null) {
+			return name;
+		} else if(file != null) {
+			return file.getName();
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * @param name The name to set.
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
 
 	/**
 	 * 
 	 */
 	public DriveTrain(int initialChainwheelCount, int initialSprocketCount) {
+		uuid = UUID.randomUUID();
 		chainwheels = new PartSet(initialChainwheelCount);
 		for(int n=0; n<initialChainwheelCount; n++) {
 			chainwheels.createPart(0);
@@ -80,6 +105,7 @@ public class DriveTrain implements Serializable {
 	}
 
 	public DriveTrain() {
+		uuid = UUID.randomUUID();
 		chainwheels = new PartSet();
 		sprockets = new PartSet();
 		setUnitSystem(UnitSystem.METRIC);
@@ -258,5 +284,31 @@ public class DriveTrain implements Serializable {
 		unitSystemChanged = false;
 		return c;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		return obj != null && ((DriveTrain)obj).uuid.equals(uuid);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		return uuid.hashCode();
+	}
+
+	public Object getUUID() {
+		return uuid;
+	}
+
+	public void setUUID(UUID uuid) {
+		this.uuid = uuid;
+	}
+	
+	
 
 }

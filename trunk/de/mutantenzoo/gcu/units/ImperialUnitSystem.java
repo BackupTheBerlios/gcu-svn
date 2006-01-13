@@ -217,4 +217,8 @@ class ImperialUnitSystem implements UnitSystem {
 	public double getMeasureFontSize() {
 		return 8.0/25.4;
 	}
+
+	public double translateDevelopment(double otherValue) {
+		return 0.0254 * otherValue / PI;
+	}
 }

@@ -66,7 +66,7 @@ public class DriveTrainDrawing extends ContentComponent {
 
 	private DriveTrain model;
 	private DriveTrainStyle style;
-	private Dimension preferredSize = new Dimension(150,400);
+	private Dimension preferredSize = new Dimension(150,480);
 	
 	/**
 	 * @return Returns the model.

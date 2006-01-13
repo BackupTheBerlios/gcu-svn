@@ -86,7 +86,7 @@ class MetricUnitSystem implements UnitSystem {
 	}
 
 	public double getMaxDevelopment() {
-		return 15.0;
+		return 11.0;
 	}
 
 	public String getRearCenterUnit() {
@@ -191,6 +191,10 @@ class MetricUnitSystem implements UnitSystem {
 
 	public double getMeasureFontSize() {
 		return 8.0;
+	}
+
+	public double translateDevelopment(double otherValue) {
+		return otherValue / 0.0254 * PI;
 	}
 
 }

@@ -29,32 +29,27 @@ import static java.awt.GridBagConstraints.NORTHWEST;
 import static java.awt.GridBagConstraints.REMAINDER;
 import static java.awt.GridBagConstraints.VERTICAL;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.RenderingHints;
-import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -71,24 +66,28 @@ import de.mutantenzoo.gcu.model.DriveTrain;
 import de.mutantenzoo.gcu.model.DriveTrainStyle;
 import de.mutantenzoo.gcu.units.UnitSystem;
 import de.mutantenzoo.raf.ContentChangeListener;
-import de.mutantenzoo.raf.HelpPane;
+import de.mutantenzoo.raf.ContentPanel;
 
 /**
  * @author MKlemm
  *
  */
-public class DriveTrainPanel extends JPanel implements ContentChangeListener, Printable {
+public class DriveTrainPanel extends ContentPanel implements ContentChangeListener, Printable, GearView {
 
 
 	/**
 	 * Generated SUID
 	 */
 	private static final long serialVersionUID = -851432026795134285L;
+	private static final Icon SAVE_ICON = new ImageIcon(DriveTrainPanel.class.getResource("/toolbarButtonGraphics/general/Save16.gif"));
 	
-	private static final GridBagConstraints gbc = new GridBagConstraints();
 	private static final int DEFAULT_CHAINWHEEL_COUNT = 3;
 	private static final int DEFAULT_SPROCKET_COUNT = 10;
 
+	private static int instanceCount = 0;
+	
+	private String name;
+	
 	private DriveTrain model = new DriveTrain(DEFAULT_CHAINWHEEL_COUNT, DEFAULT_SPROCKET_COUNT);
 
 	private DriveTrainStyle style = new DriveTrainStyle();
@@ -113,8 +112,10 @@ public class DriveTrainPanel extends JPanel implements ContentChangeListener, Pr
 
 	private ZoomInput zoomInput = new ZoomInput(model, style);
 
+
 	public DriveTrainPanel() {
 		super(new GridBagLayout());
+		name= Messages.format("Unnamed", ++instanceCount);
 		initComponents();
 	}
 
@@ -124,7 +125,8 @@ public class DriveTrainPanel extends JPanel implements ContentChangeListener, Pr
 
 		getTranslationInput(tabbedPane);
 		getGeometryInput(tabbedPane);
-		
+
+		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.anchor = NORTHWEST;
 		gbc.gridwidth = 1;
 		gbc.gridheight = 2;
@@ -139,7 +141,6 @@ public class DriveTrainPanel extends JPanel implements ContentChangeListener, Pr
 		gbc.weightx = 0;
 		gbc.weighty = 1.0;
 		add(zoomInput, gbc);
-		zoomInput.setMinimumSize(new Dimension(driveTrainDrawing.getPreferredSize().width, zoomInput.getPreferredSize().height));
 		zoomInput.addContentChangeListener(this);
 		
 		gbc.fill = BOTH;
@@ -168,6 +169,7 @@ public class DriveTrainPanel extends JPanel implements ContentChangeListener, Pr
 	private void getTranslationInput(JTabbedPane tabbedPane) {
 		JPanel translationInput = new JPanel(new GridBagLayout());
 
+		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridwidth = REMAINDER;
 		gbc.fill = BOTH;
 		gbc.anchor = NORTHWEST;
@@ -195,6 +197,7 @@ public class DriveTrainPanel extends JPanel implements ContentChangeListener, Pr
 	private void getGeometryInput(JTabbedPane tabbedPane) {
 		JPanel geometryInput = new JPanel(new GridBagLayout());
 
+		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridwidth = REMAINDER;
 		gbc.fill = BOTH;
 		gbc.anchor = NORTHWEST;
@@ -220,10 +223,12 @@ public class DriveTrainPanel extends JPanel implements ContentChangeListener, Pr
 		model.setModified(true);
 		update();
 		driveTrainOutput.dataChanged();
+		fireContentChanged();
 	}
 	
 	public void styleChanged(ChangeEvent e) {
 		update();
+		fireStyleChanged();
 	}
 
 	/**
@@ -268,108 +273,21 @@ public class DriveTrainPanel extends JPanel implements ContentChangeListener, Pr
 		sprocketGeometryInput.update();
 	}
 
-	void newProfile() {
-		if (saveModified()) {
-			setModel(new DriveTrain(DEFAULT_CHAINWHEEL_COUNT, DEFAULT_SPROCKET_COUNT));
-		}
-	}
-
-	/**
-	 * Prompts the user for a file to open and opens the specified file
-	 * 
-	 */
-	void open() {
-		if (saveModified()) {
-			JFileChooser fileChooser = new JFileChooser();
-			FileFilter binaryFormatFilter = new BinaryFormatFileFilter();
-			FileFilter xmlFormatFilter = new XMLFormatFileFilter();
-			fileChooser.addChoosableFileFilter(binaryFormatFilter);
-			fileChooser.addChoosableFileFilter(xmlFormatFilter);
-			int retVal = fileChooser.showOpenDialog(this.getRootPane());
-			if (retVal == JFileChooser.APPROVE_OPTION) {
-				File selectedFile = fileChooser.getSelectedFile();
-				loadFile(selectedFile);
-			}
-		}
-	}
-
-	/**
-	 * @param selectedFile
-	 */
-	void loadBinaryFile(File selectedFile) {
-		try {
-			ObjectInputStream or = new ObjectInputStream(
-					new FileInputStream(selectedFile));
-			DriveTrain newModel = (DriveTrain) or.readObject();
-			newModel.setFile(selectedFile);
-			newModel.reset();
-			setModel(newModel);
-			or.close();
-		} catch (IOException iox) {
-			JOptionPane
-					.showMessageDialog(
-							this,
-							Messages
-									.format(
-											"Main.19", iox.getLocalizedMessage()), Messages.getString("Main.20"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
-		} catch (ClassNotFoundException ex) {
-			JOptionPane
-					.showMessageDialog(
-							this,
-							Messages.getString("Main.21"), Messages.getString("Main.22"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-	}
-
-	/**
-	 * @param selectedFile
-	 */
-	private void loadXMLFile(File selectedFile) {
-		try {
-			FileInputStream is = new FileInputStream(selectedFile);
-			DriveTrain newModel = DriveTrainEncoder.decode(is);
-			newModel.setFile(selectedFile);
-			newModel.reset();
-			setModel(newModel);
-			is.close();
-		} catch (IOException iox) {
-			JOptionPane
-					.showMessageDialog(
-							this,
-							Messages
-									.format(
-											"Main.19", iox.getLocalizedMessage()), Messages.getString("Main.20"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
-		} catch (Exception ex) {
-			JOptionPane
-					.showMessageDialog(
-							this,
-							Messages.getString("XMLError"), Messages.getString("Main.22"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-	}
-	
-	/**
-	 * loads Data from a file in
-	 * any supported format
-	 * @param selectedFile
-	 */
-	private void loadFile(File selectedFile) {
-		if(selectedFile.getName().toLowerCase().endsWith(".rrp")) {
-			loadBinaryFile(selectedFile);
-		} else {
-			loadXMLFile(selectedFile);
-		}
-	}
-
 	/**
 	 * Prompts the user for a filename and saves the data to the selected file
 	 * 
 	 */
-	private void saveAs() {
+	boolean saveAs() {
 		JFileChooser fileChooser = new JFileChooser();
 		FileFilter binaryFormatFilter = new BinaryFormatFileFilter();
 		FileFilter xmlFormatFilter = new XMLFormatFileFilter();
 		fileChooser.addChoosableFileFilter(binaryFormatFilter);
 		fileChooser.addChoosableFileFilter(xmlFormatFilter);
-
+		if(model.getFile() != null) {
+			fileChooser.setSelectedFile(model.getFile());
+		} else {
+			fileChooser.setSelectedFile(new File(getName()));
+		}
 		int retVal = fileChooser.showSaveDialog(this);
 		if (retVal == JFileChooser.APPROVE_OPTION) {
 			boolean binaryFormatSelected = fileChooser.getFileFilter().getDescription().equals(binaryFormatFilter.getDescription()); 
@@ -385,40 +303,47 @@ public class DriveTrainPanel extends JPanel implements ContentChangeListener, Pr
 				}
 			}
 			model.setFile(selectedFile);
+			model.setName(null);
 			if (selectedFile.exists()) {
 				if (selectedFile.canWrite()) {
 					int chosen = JOptionPane
 							.showConfirmDialog(
 									this,
 									Messages.getString("Main.11"), Messages.getString("Main.12"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
-					if (chosen == JOptionPane.NO_OPTION) {
-						return;
+					if(chosen == JOptionPane.NO_OPTION) {
+						return false;
 					}
 				} else {
 					JOptionPane
 							.showMessageDialog(
 									this,
 									Messages.getString("Main.13"), Messages.getString("Main.14"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
-					return;
+					return false;
 				}
 			}
-			writeFile();
+			return writeFile();
+		} else {
+			return false;
 		}
-
 	}
 
-	private void writeFile() {
+	private boolean writeFile() {
+		boolean success;
 		if(model.getFile().getName().toLowerCase().endsWith(".rrp")) {
-			writeBinaryFile();
+			success = writeBinaryFile();
 		} else {
-			writeXMLFile();
+			success = writeXMLFile();
 		}
+		if(success) {
+			fireContentChanged();
+		}
+		return success;
 	}
 	
 	/**
 	 * Writes data out into file specified in model
 	 */
-	private void writeBinaryFile() {
+	private boolean writeBinaryFile() {
 		File selectedFile = model.getFile();
 		try {
 			ObjectOutputStream ow = new ObjectOutputStream(
@@ -426,10 +351,12 @@ public class DriveTrainPanel extends JPanel implements ContentChangeListener, Pr
 			ow.writeObject(model);
 			ow.close();
 			model.reset();
+			return true;
 		} catch (IOException iox) {
 			JOptionPane.showMessageDialog(this, Messages.format(
 					"Main.15", iox.getLocalizedMessage()), //$NON-NLS-1$ 
 					Messages.getString("Main.16"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
+			return false;
 		}
 
 	}
@@ -437,40 +364,43 @@ public class DriveTrainPanel extends JPanel implements ContentChangeListener, Pr
 	/**
 	 * Writes data out into file specified in model
 	 */
-	private void writeXMLFile() {
+	private boolean writeXMLFile() {
 		File selectedFile = model.getFile();
 		try {
 			FileOutputStream ow = new FileOutputStream(selectedFile);
 			DriveTrainEncoder.encode(ow, model);
 			ow.close();
 			model.reset();
+			return true;
 		} catch (IOException iox) {
 			JOptionPane.showMessageDialog(this, Messages.format(
 					"Main.15", iox.getLocalizedMessage()), //$NON-NLS-1$ 
 					Messages.getString("Main.16"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
+			return false;
 		} catch (ParserConfigurationException iox) {
 			JOptionPane.showMessageDialog(this, Messages.format(
 					"ParserConfigurationException", iox.getLocalizedMessage()), //$NON-NLS-1$ 
 					Messages.getString("Main.16"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
+			return false;
 		} catch (TransformerException iox) {
 			JOptionPane.showMessageDialog(this, Messages.format(
 					"TransformerException", iox.getLocalizedMessage()), //$NON-NLS-1$ 
 					Messages.getString("Main.16"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
+			return false;
 		}
 
 	}
 
-	private boolean saveModified() {
+	boolean saveModified() {
 		if (model.isModified()) {
 			int selectedOption = JOptionPane.showConfirmDialog(this,
-					Messages.getString("UnsavedChanges.Message"), Messages
+					Messages.format("UnsavedChanges.Message", getName()), Messages
 							.getString("UnsavedChanges.Title"),
 					JOptionPane.YES_NO_CANCEL_OPTION,
 					JOptionPane.QUESTION_MESSAGE);
 			switch (selectedOption) {
 			case JOptionPane.YES_OPTION:
-				save();
-				return true;
+				return save();
 			case JOptionPane.NO_OPTION:
 				return true;
 			default:
@@ -481,61 +411,37 @@ public class DriveTrainPanel extends JPanel implements ContentChangeListener, Pr
 		}
 	}
 
-	private void save() {
+	boolean save() {
 		if (model.isModified()) {
 			if (model.getFile() == null) {
-				saveAs();
+				return saveAs();
 			} else {
-				writeFile();
+				return writeFile();
 			}
+		} else {
+			return true;
 		}
 	}
 
-	void about() {
-		HelpPane helpPane = new HelpPane(Messages.getString("Help.License.Name"));
-		helpPane.setPreferredSize(new Dimension(500,300));
-		JPanel panel = new JPanel(new BorderLayout());
-		JLabel label = new JLabel(Messages.getString("Help.About"));
-		label.setPreferredSize(new Dimension(500,250));
-		label.setAlignmentX(JLabel.CENTER_ALIGNMENT);
-		panel.add(label, BorderLayout.NORTH);
-		panel.add(helpPane, BorderLayout.CENTER);
-		JOptionPane.showMessageDialog(
-				this,
-				panel,
-				Messages.getString("Help.About.ShortDescription"),
-				JOptionPane.INFORMATION_MESSAGE);
-	}
-
-	void help() {
-		JFrame frame = new JFrame();
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.setContentPane(new HelpPane(Messages.getString("Help.URL")));
-		frame.setTitle(Messages.getString("Help.Title"));
-		frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/toolbarButtonGraphics/general/Help24.gif")));
-		frame.pack();
-		frame.setVisible(true);
-	}
-	
-	void viewAllGears() {
+	public void viewAllGears() {
 		getStyle().setGearVisibility(ChainlineStatus.ALL);
 		update();
 		getGearBoxOutput().dataChanged();
 	}
 	
-	void viewOKGears() {
+	public void viewOKGears() {
 		getStyle().setGearVisibility(ChainlineStatus.USABLE);
 		update();
 		getGearBoxOutput().dataChanged();
 	}
 	
-	void viewGoodGears() {
+	public void viewGoodGears() {
 		getStyle().setGearVisibility(ChainlineStatus.GOOD);
 		update();
 		getGearBoxOutput().dataChanged();
 	}
 	
-	void export() {
+	public void export() {
 		JFileChooser fileChooser = new JFileChooser();
 		FileFilter htmlFilter = new HTMLFileFilter();
 		FileFilter csvFilter = new CSVFileFilter();
@@ -594,7 +500,7 @@ public class DriveTrainPanel extends JPanel implements ContentChangeListener, Pr
 
 	}
 	
-	void print() {
+	public void print() {
 		PrinterJob pj = PrinterJob.getPrinterJob();
 		pj.setPrintable(this);
 		pj.setJobName(Messages.getString("GCUPrintJob"));
@@ -630,17 +536,25 @@ public class DriveTrainPanel extends JPanel implements ContentChangeListener, Pr
 		}
 	}
 
-
-	String getWindowTitle() {
-		String title = Messages.getString("Main.2");
-		String fileName;
-		if (model.getFile() == null) {
-			fileName = Messages.getString("Unnamed");
+	boolean close() {
+		if(saveModified()) {
+			getParent().remove(this);
+			return true;
 		} else {
-			fileName = model.getFile().getName();
+			return false;
 		}
-		String modified = model.isModified() ? "*" : "";
-		return fileName + modified + " - " + title;
+	}
+	
+	/**
+	 * Returns the name of this
+	 * component
+	 */
+	@Override 
+	public String getName() {
+		if (model.getName() == null) {
+			model.setName(name);
+		}
+		return model.getName();
 	}
 
 	/**
@@ -661,31 +575,6 @@ public class DriveTrainPanel extends JPanel implements ContentChangeListener, Pr
 		return style;
 	}
 
-	private final class XMLFormatFileFilter extends FileFilter {
-		@Override
-		public boolean accept(File file) {
-			return file.getName().toLowerCase().endsWith(".xml") //$NON-NLS-1$
-			|| file.getName().toLowerCase().endsWith(".txt") //$NON-NLS-1$
-			|| file.isDirectory(); 
-		}
-
-		@Override
-		public String getDescription() {
-			return Messages.getString("XMLFileFormat"); //$NON-NLS-1$
-		}
-	}
-
-	private final class BinaryFormatFileFilter extends FileFilter {
-		@Override
-		public boolean accept(File file) {
-			return file.getName().toLowerCase().endsWith(".rrp") || file.isDirectory(); //$NON-NLS-1$
-		}
-
-		@Override
-		public String getDescription() {
-			return Messages.getString("Main.18"); //$NON-NLS-1$
-		}
-	}
 
 	/**
 	 * @author MKlemm
@@ -722,6 +611,11 @@ public class DriveTrainPanel extends JPanel implements ContentChangeListener, Pr
 		}
 	}
 
-
-
+	public Icon getIcon() {
+		if(model.isModified()) {
+			return SAVE_ICON;
+		} else {
+			return null;
+		}
+	}
 }

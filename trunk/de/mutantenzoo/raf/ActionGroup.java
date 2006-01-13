@@ -1,5 +1,7 @@
 package de.mutantenzoo.raf;
 
+import java.util.HashMap;
+
 import javax.swing.JMenu;
 import javax.swing.JToolBar;
 
@@ -10,6 +12,7 @@ public class ActionGroup {
 	private String name;
 	private JToolBar toolBar = null;
 	private JMenu menu = null;
+	private HashMap<String, LocalizedAction> actions = new HashMap<String,LocalizedAction>();
 	
 	public ActionGroup(String name) {
 		this.name = name;
@@ -41,6 +44,7 @@ public class ActionGroup {
 	}
 
 	public void add(LocalizedAction localizedAction) {
+		actions.put(localizedAction.getName(), localizedAction);
 		localizedAction.setGroup(this);
 		Button button = new Button(localizedAction);
 		MenuItem menuItem = new MenuItem(localizedAction);
@@ -53,4 +57,7 @@ public class ActionGroup {
 		getToolBar().addSeparator();
 	}
 
+	public LocalizedAction getAction(String name) {
+		return actions.get(name);
+	}
 }

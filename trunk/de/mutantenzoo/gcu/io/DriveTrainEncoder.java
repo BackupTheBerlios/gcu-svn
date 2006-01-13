@@ -28,6 +28,7 @@ package de.mutantenzoo.gcu.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -54,6 +55,9 @@ public class DriveTrainEncoder {
 
 	public static void encode(Document parent, DriveTrain model) {
 		Element element = parent.createElement("DriveTrain");
+		element.setAttribute("name", model.getName());
+		element.setAttribute("uuid", model.getUUID().toString());
+		
 		if(model.getUnitSystem().equals(UnitSystem.METRIC)) {
 			element.setAttribute("unitSystem","METRIC");
 		} else {
@@ -94,6 +98,14 @@ public class DriveTrainEncoder {
 
 		DriveTrain model = new DriveTrain();
 		Element element = doc.getDocumentElement();
+		if(element.hasAttribute("name")) {
+			model.setName(element.getAttribute("name"));
+		}
+
+		if(element.hasAttribute("uuid")) {
+			UUID uuid = UUID.fromString(element.getAttribute("uuid"));
+			model.setUUID(uuid);
+		}
 		if(element.getAttribute("unitSystem").equals("METRIC")) {
 			model.setUnitSystem(UnitSystem.METRIC);
 		} else {
