@@ -1,4 +1,7 @@
 <project name="gcu" default="package">
+
+	<property name="build.version" value="2.0.0"/>
+	
 	<target name="compile" description="compiles the source files">
 		<javac srcdir="."
          debug="off"
@@ -6,7 +9,7 @@
 	</target>
 	
 	<target name="package" depends="compile" description="creates an executable JAR">
-		<zip destfile="../gcu.jar" basedir="."/>
+		<zip destfile="../gcu-${build.version}.jar" basedir="."/>
 	</target>
 	
 	<target name="clean" description="deletes generated resources">
@@ -15,7 +18,7 @@
 			    <include name="**/*.class"/>
 			</fileset>
 			<fileset dir="..">
-				<include name="gcu.jar"/>
+				<include name="gcu-${build.version}.jar"/>
 			</fileset>
 		</delete>
 	</target>
