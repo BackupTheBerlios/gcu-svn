@@ -62,7 +62,7 @@ public class DriveTrain implements Serializable {
 	private WheelDiameter wheelDiameter = new WheelDiameter();
 
 	private boolean unitSystemChanged = false;
-	private UUID uuid;
+	private transient UUID uuid;
 	private String name;
 
 	/**
@@ -307,8 +307,4 @@ public class DriveTrain implements Serializable {
 	public void setUUID(UUID uuid) {
 		this.uuid = uuid;
 	}
-
-	
-	
-
 }

@@ -32,8 +32,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.imageio.ImageIO;
-
-import de.mutantenzoo.gcu.ui.DriveTrainComparisonView;
+import javax.swing.JComponent;
 
 /**
  * @author MKlemm
@@ -41,7 +40,7 @@ import de.mutantenzoo.gcu.ui.DriveTrainComparisonView;
  */
 public class DriveTrainPNGWriter {
 
-	public static void writePNG(OutputStream out, DriveTrainComparisonView view, int width, int height) throws IOException {
+	public static void writePNG(OutputStream out, JComponent view, int width, int height) throws IOException {
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = image.createGraphics();
 		Dimension origSize = view.getSize();

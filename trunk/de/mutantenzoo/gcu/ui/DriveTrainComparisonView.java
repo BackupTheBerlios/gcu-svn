@@ -140,7 +140,7 @@ public class DriveTrainComparisonView extends JComponent implements Printable, G
 		g.draw(xAxis);
 		Line2D yAxis = new Line2D.Double(0, 0, 0, -SPACING * (1+driveTrains.size()));
 		g.draw(yAxis);
-		for(double n=0; n<unitSystem.getMaxDevelopment(); n += 1.0 ) {
+		for(double n=0; n<unitSystem.getMaxDevelopment(); n += unitSystem.getDevelopmentSteps() ) {
 			Stroke origStroke = g.getStroke();
 			Color origColor = g.getColor();
 			g.setColor(Color.GRAY);
@@ -189,7 +189,11 @@ public class DriveTrainComparisonView extends JComponent implements Printable, G
 	private void drawGear(Graphics2D g, double y, Gear gear) {
 		g.setColor(GearRenderer.getColorFromChainlineStatus(gear.getChainlineStatus()));
 		AffineTransform origTransform = g.getTransform();
-		g.translate(map(gear.getDevelopment().getValue()), y);
+		if(gear.getParent().getUnitSystem().equals(unitSystem)) {
+			g.translate(map(gear.getDevelopment().getValue()), y);
+		} else {
+			g.translate(map(unitSystem.translateDevelopment(gear.getDevelopment().getValue())), y);
+		}
 		g.draw(triangle);
 		g.setColor(Color.BLACK);
 		TextLayout tl = new TextLayout(gear.getChainwheel().getSize()+":"+gear.getSprocket().getSize(), font, g.getFontRenderContext());
@@ -268,7 +272,7 @@ public class DriveTrainComparisonView extends JComponent implements Printable, G
 			try {
 				ps = new PrintStream(new FileOutputStream(selectedFile));
 				if(pngSelected) {
-					DriveTrainPNGWriter.writePNG(ps, this, 1024,768);
+					DriveTrainPNGWriter.writePNG(ps, this, 1024, (int)(BOTTOM_MARGIN + SPACING * (1+driveTrains.size())));
 				} else {
 					DriveTrainCSVWriter.writeCSV(ps, driveTrains.keySet());
 				}

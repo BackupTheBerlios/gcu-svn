@@ -1,9 +1,9 @@
 <html>
 <head>
-<title>GCU Bicycle Drive Train Calculator V. 1.0 beta 1</title>
+<title>GCU Bicycle Drive Train Calculator V. 2.0.0</title>
 </head>
 <body style="font-family: sans-serif">
-<h1 align="center">GCU Bicycle Drive Train Calculator V. 1.0 beta 1</h1>
+<h1 align="center">GCU Bicycle Drive Train Calculator V. 2.0.0</h1>
 <p align="center">Computes transmissions and geometry for
 derailleur-geared bicycles.</p>
 <p align="center"><img src="cycling.jpg"></p>
@@ -15,6 +15,7 @@ that's exactly what it is! This one does, among other things:</p>
 	<li>Draw a scale graphic of the drive train</li>
 	<li>Compute chainline characteristics according to user-defined limits</li>
 	<li>Allow the user to load and save drive train profiles</li>
+	<li>Export data as CSV files (MS Excel), HTML, and PNG images.</li>
 	<li>Platform independent, offline use</li>
 	<li>Doesn't depend on third-party software other than the Java Runtime
 	Environment (JRE)</li>
@@ -39,11 +40,16 @@ your file manager.</p>
 <h2>Starting from a console</h2>
 <p>Change to the directory where the &quot;gcu.jar&quot; file is
 located, and exeute this command:</p>
-<code>java -jar gcu.jar <i>&lt;profile-file-name&gt;</i></code>
+<code>java -jar gcu.jar <i>[&lt;profile-file-name&gt; ...]</i></code>
 <p><i>profile-file-name</i> is the optional path of a file that has been
 saved by GCU before. The file name usually ends with &quot;.rrp&quot;</p>
 <p>If you omit this argument, GCU starts with a new empty profile.</p>
+<p>As of version 2.0.0, you can give multiple file names as arguments</p>
 <h1>Usage</h1>
+<h2>Compatibility</h2>
+<p>With the 2.0 version, support for the 1.0 &quot;RRP&quot; file format is obsolete. USe the XML format in the future. If you want to convert RRP files saved with an old version, open the RRP file with the 1.1 or 1.2 version and save it as an XML file. XML files will be guaranteed to be readable by future versions of GCU, but I didn't want to maintain two file formats in this way, so I dropped RRP support just right now.</p>
+<h2>Tabbed Profile View</h2>
+<p>As of Version 2.0.0, the user interface has changed to a multi-document style, i.e. now you can load multiple drive train profiles at the same time. They will be displayed as tabs so that you can switch among them as you like.</p><p>The real reason for this, however, is the new <a href="#comparison">comparison</a> feature (see <a href="#comparison">below</a>).</p>
 <h2>Input Form</h2>
 <p>On the left in the main window are the input controls that must be
 filled with the drive train's data.</p>
@@ -84,11 +90,11 @@ will be used to compute the speed of the bicycle in the different gears.</p>
 <p>The <i>chainline</i> is the distance from the plane defined by the
 bicycle frame's forward and upward axes to the center of the distance
 between the largest and the smallest chainring. If this sounds a bit
-complicated, just have a look to the graphic, and hopefully things will
+complicated, just have a look at the graphic in the application, and hopefully things will
 become clearer.</p>
 <p>The chainring pitch is the distance between the 
 center of one chainring and the center of the next, and is used for
-the chainline computations and shown in the graphical representation.</p>
+chainline computations and the graphical representation.</p>
 <h4>Sprockets</h4>
 <p>Here, again, this is similar in spirit to the chainring settings.
 Unfortunately, measuring the rear chainline is not really as easy as
@@ -132,13 +138,13 @@ are shown.</p>
 depicted by a dash-dotted line.</p>
 <p>The measures shown on the drawing represent the values entered in the
 &quot;Geometry&quot; form.</p>
-<p>You can adjust the zoom factor with the slider control. Panning by
+<p>You can adjust the zoom factor with the slider control. 'Pan'ning is done by
 clicking and dragging the mouse on the drawing area.</p>
 <p>If you have a wheel mouse, you can also use the mouse wheel to adjust
 the zoom factor.</p>
 <h2>Output Table</h2>
 <p>Here, the results of the computations are shown. The development (or
-<i>gear inches</i>) are visualized by a colored bar, the color of which
+<i>gear inches</i>, depending on the measurement system in use) are visualized by a colored bar, the color of which
 represents the chainline status according to the rules explained above.
 </p>
 <p>The table rows can be sorted by clicking the header cells according
@@ -155,9 +161,9 @@ all visible gears in the drawing again.</p>
 <p>GCU can compute values in two different measuring systems,
 namely the metric system (SI system), or the anglo-american
 system (imperial / customary units).</p>
-<p>Chosing a unit system ot only affects the pure unit
+<p>Chosing a unit system not only affects the pure unit
 representation of values entered by the user or displayed
-by the application, it also makes a difference whether
+by the application, it also detrmines whether
 the <i>Development</i> in meters or the <i>Gear Inches</i> 
 are shown in the output table.</p>
 <p><i>Gear Inches</i> are a common notion in countries that
@@ -168,6 +174,12 @@ if the metric system is in effect. The development value
 represents the distance traveled with one full crank round.
 It is calculated as the wheel circumference in meters multiplied
 by the translation ratio.</p>
-
+<h2><a name="comparison">Comparison View</a></h2>
+<p>Version 2.0.0 comes with a new drive train comparison view. It shows all open drive train profiles in one window in an alternative representation with the development (or gear inches) on the X-axis and the drive train profiles, one in a row, on the y-axis.</p>
+<p>Now you can see gear distribution and total translation range at the first glance and in comparison with other gear configurations.</p>
+<p>You can also &quot;Save As&quot;, Export, and Print the comparison view. However, the comparison view cannot be closed individually, and the Save As, Export, and Print functions have slightly different semantics than in the drive train tabs.</p>
+<p>The 'Print' action only prints the comparison view.</p>
+<p>'Export' is possible as CSV (with all drive drain profiles in one CSV file), or PNG graphics with a fixed width of 1024 pixels (this will be made configurable in a future version).</p>
+<p>'Save As' saves all currently open drive trains into one single file. This file can be opened by GCU in the usual way at a later time, restoring all profiles to individual tabs again (and thus also restoring the comparison view). You can then save or edit the profiles individually, or save the comparison view again, which will save all the profiles again into one single file.</p>
 </body>
 </html>

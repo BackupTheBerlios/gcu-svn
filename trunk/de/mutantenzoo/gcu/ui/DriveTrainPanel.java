@@ -41,7 +41,6 @@ import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -61,6 +60,7 @@ import javax.xml.transform.TransformerException;
 import de.mutantenzoo.gcu.io.DriveTrainCSVWriter;
 import de.mutantenzoo.gcu.io.DriveTrainEncoder;
 import de.mutantenzoo.gcu.io.DriveTrainHTMLWriter;
+import de.mutantenzoo.gcu.io.DriveTrainPNGWriter;
 import de.mutantenzoo.gcu.model.ChainlineStatus;
 import de.mutantenzoo.gcu.model.DriveTrain;
 import de.mutantenzoo.gcu.model.DriveTrainStyle;
@@ -279,10 +279,10 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 	 */
 	public boolean saveAs() {
 		JFileChooser fileChooser = new JFileChooser();
-		FileFilter binaryFormatFilter = Filters.BINARY;
+		//FileFilter binaryFormatFilter = Filters.BINARY;
 		FileFilter xmlFormatFilter = Filters.XML;
-		fileChooser.addChoosableFileFilter(binaryFormatFilter);
-		fileChooser.addChoosableFileFilter(xmlFormatFilter);
+		//fileChooser.addChoosableFileFilter(binaryFormatFilter);
+		fileChooser.setFileFilter(xmlFormatFilter);
 		if(model.getFile() != null) {
 			fileChooser.setSelectedFile(model.getFile());
 		} else {
@@ -290,18 +290,18 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 		}
 		int retVal = fileChooser.showSaveDialog(this);
 		if (retVal == JFileChooser.APPROVE_OPTION) {
-			boolean binaryFormatSelected = fileChooser.getFileFilter().getDescription().equals(binaryFormatFilter.getDescription()); 
+			//boolean binaryFormatSelected = fileChooser.getFileFilter().getDescription().equals(binaryFormatFilter.getDescription()); 
 			File selectedFile = fileChooser.getSelectedFile();
-			if(binaryFormatSelected) {
+			/* if(binaryFormatSelected) {
 				if (!selectedFile.getName().toLowerCase().endsWith(".rrp")) { //$NON-NLS-1$
 					selectedFile = new File(selectedFile.getAbsolutePath() + ".rrp"); //$NON-NLS-1$
 				}
-			} else {
+			} else { */
 				if (!selectedFile.getName().toLowerCase().endsWith(".xml")
 						&& !selectedFile.getName().toLowerCase().endsWith(".txt") ) { //$NON-NLS-1$
 					selectedFile = new File(selectedFile.getAbsolutePath() + ".txt"); //$NON-NLS-1$
 				}
-			}
+			//}
 			model.setFile(selectedFile);
 			model.setName(null);
 			if (selectedFile.exists()) {
@@ -484,12 +484,17 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 			try {
 				ps = new PrintStream(new FileOutputStream(selectedFile));
 				if(htmlSelected) {
-					DriveTrainHTMLWriter.writeHTML(ps, new TableAdapter(model, style));
+					String imageURL = selectedFile.getAbsolutePath().substring(0, selectedFile.getAbsolutePath().length()-4)+"png";
+					File imageFile = new File(imageURL);
+					FileOutputStream fos = new FileOutputStream(imageFile);
+					DriveTrainPNGWriter.writePNG(fos, driveTrainDrawing, driveTrainDrawing.getSize().width, driveTrainDrawing.getSize().height);
+					fos.close();
+					DriveTrainHTMLWriter.writeHTML(ps, new TableAdapter(model, style), imageFile.getName());
 				} else {
 					DriveTrainCSVWriter.writeCSV(ps, model);
 				}
 				ps.close();
-			} catch (FileNotFoundException e) {
+			} catch (IOException e) {
 				JOptionPane.showMessageDialog(this, Messages.format(
 						"Main.15", e.getLocalizedMessage()), //$NON-NLS-1$ 
 						Messages.getString("Main.16"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$

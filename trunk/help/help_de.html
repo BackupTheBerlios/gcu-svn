@@ -1,9 +1,9 @@
 <html>
 <head>
-<title>GCU Antriebsrechner V. 1.0 beta 1</title>
+<title>GCU Antriebsrechner V. 2.0.0</title>
 </head>
 <body style="font-family: sans-serif">
-<h1 align="center">GCU Antriebsrechner V. 1.0 beta 1</h1>
+<h1 align="center">GCU Antriebsrechner V. 2.0.0</h1>
 <p align="center">Berechnet Übersetzungen und Maße für Fahrradantriebe
 mit Kettenschaltung.</p>
 <p align="center"><img src="cycling.jpg"></p>
@@ -16,6 +16,7 @@ Und genau so ist es! Dieser hier kann unter anderem:</p>
 	<li>Individuelle Berechnung der Schr&auml;glaufqualit&auml;t nach
 	vorgegebenen Grenzwerten</li>
 	<li>Alle Daten können gespeichert und wieder geladen werden</li>
+	<li>Daten können als CSV (Excel), HTML und als PNG-Grafiken exportiert werden</li>
 	<li>Plattformunabhängig, aber trotzdem offline nutzbar</li>
 	<li>Außer zum Java Runtime Enviroment keine Abhängigkeiten von anderer
 	Software</li>
@@ -40,11 +41,29 @@ starten.</p>
 <h2>Start von einer Kommandozeile aus</h2>
 <p>Sofern das JRE korrekt installiert ist, in das Verzeichnis wechseln,
 in dem die Datei gcu.jar liegt und folgenden Befehl zum Start eingeben:</p>
-<code>java -jar gcu.jar <i>Profildateiname</i></code>
+<code>java -jar gcu-2.0.0.jar <i>[Profildateiname ...]</i></code>
 <p><i>Profildateiname</i> ist dabei der Pfad einer Datei, die zuvor von
-GCU gespeichert wurde (Name endet normalerweise mit &quot;.rrp&quot;).
+GCU gespeichert wurde (Name endet normalerweise mit &quot;.txt&quot; oder &quot;.xml&quot;).
 Wird dieses Argument weggelassen, startet GCU mit einem leeren Profil.</p>
+<p>Ab Version 2.0.0 können auch mehrere Dateien angegeben werden.</p>
 <h1>Benutzung</h1>
+<h2>Kompatibilität mit früheren Versionen</h2>
+<p>in der vorliegenden Version 2.0 wurde die Unterstützung für das in der
+Version 1 noch unterstützte RRP-Format zugunsten des XML-Formats entfernt.</p>
+<p>Vorhandene RRP-Dateien können aber mit einer Version 1.1 oder 1.2 geladen und
+	dann wieder als XML-Datei gespeichert werden. Die älteren XML-Dateien sind
+dann mit der Version 2.x kompatibel.</p>
+<p>Das XML-Format wird in zukünftigen Version nur in der Weise weiterentwickelt,
+	dass mit älteren Versionen gespeicherte XML-Dateien auch mit der jeweils
+	neuesten Version
+	geöffnet werden können. Für das RRP-Format war mir das aber zu aufwendig,
+	deshalb habe ich
+es ab jetzt gleich von vornherein deaktiviert, um späteren Ärger zu vermeiden.</p>
+<h2>Dokumentenreiter</h2>
+<p>Ab Version 2.0.0 können mehrere Profile gleichzeitig geladen und bearbeitet
+	werden. Die Dokumente werden dann in einer Karteikartenansicht angzeigt.</p>
+	<p>Der eigentliche Nutzeffekt dieser Neuerung zeigt sich auf der letzten (am
+weitesten rechts liegenden) Karteikarte. Siehe <a href="#comparison">die Beschreibung der Vergleichsansicht</a> für weitere Informationen.</p>
 <h2>Eingabemaske</h2>
 <p>Auf der linken Seite des Fensters werden die Eingabeparameter für die
 Berechnungen eingegeben. Dabei werden zwei Aspekte unterschieden:
@@ -177,6 +196,10 @@ angezeigt.<i>Gear Inches</i> sind ganz einfach Laufraddurchmesser *
 Übersetzungsverhältnis (in Zoll).</p><p>Im metrischen System wird die
 Entfaltung in Metern angezeigt, dieser Wert errechnet sich aus
 Laufradumfang * Übersetzungsverhältnis.</p>
-
+<h2><a name="comparison">Vergleichsansicht</a></h2>
+<p>Auf der letzen Karteikarte (Reiter ganz rechts) befindet sich - sofern überhaupt mindestens ein Profil geladen ist - eine Vergleichsansicht der geladenen Profile. Jedes Profil wird auf einer eigenen Zeile angezeigt, dessen Gänge werden durch Pfeile in der Farbe des jeweiligen Schräglaufstatus nach ihrer Entfaltung geordnet angedeutet. Dadurch erhält man einen schnellen Überblick über die Abstände zwischen den einzelnen Gängen, den Gesamtübersetzungsumfang und die Nutzbarkeit von Gängen, und das alles auf einen Blick im direkten Vergleich für mehrere Antriebsprofile.</p>
+<p>Wie bei den Profilen ist auch hier &quot;Speichern Als&quot;, Exportieren und Drucken möglich, allerdings kann diese Karteikarte nicht manuell geschlossen bzw. entfernt werden. Das einfache Speichern (ohne Angabe eines Dateinamens) ist ebenfalls nicht möglich, weil die Vergleichsansicht auch nicht als solche geladen werden kann. Außerdem verhalten sich die Funktionen etwas anders als bei den Profil-Karteikarten.</p><p>Die Druckfunktion druckt nur die angezeigte Grafik aus. je nach Anzahl der Profile empfehle ich den Ausdruck im Querformat.</p>
+<p>Der Export der Vergleichsansicht funtioniert momentan nur als CSV-Datei oder als PNG-Grafik mit einer Breite von 1024 Pixeln. In einer zukünftigen Version wird dies auch noch konfigurierbar sein.</p>
+<p>&quot;Speichern Als&quot; hat bei der Vergleichsansicht eine ganz besondere Bedeutung: Es wird eine Datei erzeugt, die alle momentan geöffneten Profile zusammen enthält. Diese Datei kann ganz normal mit GCU später wieder geladen werden, und die einzelnen Profile erscheinen wieder als Karteireiter. Damit wird natürlich auch die Vergleichsansicht wiederhergestellt, und die geladenen Profile können bearbeitet, separat gespeichert, oder verglichen und wieder gemeinsam gespeichert werden.</p>
 </body>
 </html>

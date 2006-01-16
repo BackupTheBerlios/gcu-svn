@@ -36,16 +36,17 @@ import de.mutantenzoo.gcu.ui.TableAdapter;
  */
 public class DriveTrainHTMLWriter {
 
-	public static void writeHTML(PrintStream out, TableAdapter model) {
+	public static void writeHTML(PrintStream out, TableAdapter model, String imageURL) {
 		out.println("<html>");
 		out.println("  <head>");
-		out.println("    <title>"+model.getModel().getFile().getName()+"</title>");
+		out.println("    <title>"+model.getModel().getName()+"</title>");
 		out.println("    <style>table {border-collapse: collapse;} td {text-align: left; border: solid 1px black;} th {text-align: center; border: solid 1px black; background-color: #F0F0FF;}</style>");
 		out.println("  </head>");
 		out.println("  <body>");
-		out.println("    <h1>"+model.getModel().getFile().getName()+"</h1>");
+		out.println("    <h1>"+model.getModel().getName()+"</h1>");
 		out.println("    <p>"+Messages.getString("Cadence")+": "+model.getModel().getCadence().getStringValue()+"</p>");
-		out.println("    <table>");
+		out.print("    <img align=\"left\" src=\""+imageURL+"\" alt=\""+Messages.getString("Drawing")+"\" />");
+		out.println("<table>");
 		out.print("      <tr>");
 		for(int n=0; n<model.getColumnCount(); n++) {
 			if(n == model.getColumnCount()-1) {

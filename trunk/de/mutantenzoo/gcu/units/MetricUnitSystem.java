@@ -194,7 +194,11 @@ class MetricUnitSystem implements UnitSystem {
 	}
 
 	public double translateDevelopment(double otherValue) {
-		return otherValue / 0.0254 * PI;
+		return otherValue * 0.0254 * PI;
+	}
+
+	public double getDevelopmentSteps() {
+		return 1;
 	}
 
 }

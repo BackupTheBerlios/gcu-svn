@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.UUID;
 
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -99,26 +100,7 @@ public class Main implements ContentChangeListener {
 		mainFrame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/bicycle.png")));		actions = new ActionContainer();
 		mainFrame.setJMenuBar(actions.getMenuBar());
 		mainPanel = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
-		comparisonView.addComponentListener(new ComponentListener(){
-
-			public void componentResized(ComponentEvent e) {
-				// do nothing
-				
-			}
-
-			public void componentMoved(ComponentEvent e) {
-				// do nothing
-				
-			}
-
-			public void componentShown(ComponentEvent e) {
-				setPanelSelected(false);
-			}
-
-			public void componentHidden(ComponentEvent e) {
-				setPanelSelected(true);
-			}
-			});
+		comparisonView.addComponentListener(new TabListener(false));
 		
 		ActionGroup fileGroup = actions.getActionGroup("File");
 		fileGroup.add(new LocalizedAction("New"){
@@ -235,8 +217,9 @@ public class Main implements ContentChangeListener {
 		mainFrame.setVisible(true);
 	}
 
-	protected void saveAll() {
-		for(int n=0; n < mainPanel.getTabCount(); n++) {
+	private void saveAll() {
+		for(int n=0; n < mainPanel.getTabCount()-1; n++) {
+			mainPanel.setSelectedIndex(n);
 			((DriveTrainPanel)mainPanel.getComponentAt(n)).save();
 		}
 		
@@ -274,7 +257,9 @@ public class Main implements ContentChangeListener {
 			mainPanel.addTab(Messages.getString("Comparison"), comparisonView);
 		} else {
 			mainPanel.removeTabAt(0);
+			mainPanel.setSelectedIndex(-1);
 		}
+		contentChanged(null);
 	}
 
 	private void setPanelSelected(boolean enabled) {
@@ -284,10 +269,13 @@ public class Main implements ContentChangeListener {
 	}
 
 	private void closeAll() {
-		for(int n=0; n<mainPanel.getTabCount(); n++) {
-			GearView view = (GearView)mainPanel.getComponentAt(n);
+		int skippedTabs = 1; 
+		while(mainPanel.getTabCount() > skippedTabs) {
+			GearView view = (GearView)mainPanel.getComponentAt(skippedTabs-1);
 			if(view.close()) {
 				comparisonView.removeModel(((DriveTrainPanel)view).getModel());
+			} else {
+				skippedTabs++;
 			}
 		}
 		if(mainPanel.getTabCount() == 1) {
@@ -328,11 +316,12 @@ public class Main implements ContentChangeListener {
 	 */
 	private void open() {
 		JFileChooser fileChooser = new JFileChooser();
-		FileFilter binaryFormatFilter = Filters.BINARY;
+		/* binary support removed */
+		//FileFilter binaryFormatFilter = Filters.BINARY;
 		FileFilter xmlFormatFilter = Filters.XML;
 		fileChooser.setMultiSelectionEnabled(true);
-		fileChooser.addChoosableFileFilter(binaryFormatFilter);
-		fileChooser.addChoosableFileFilter(xmlFormatFilter);
+		//fileChooser.addChoosableFileFilter(binaryFormatFilter);
+		fileChooser.setFileFilter(xmlFormatFilter);
 		int retVal = fileChooser.showOpenDialog(mainFrame.getRootPane());
 		if (retVal == JFileChooser.APPROVE_OPTION) {
 			File[] selectedFiles = fileChooser.getSelectedFiles();
@@ -353,6 +342,7 @@ public class Main implements ContentChangeListener {
 			DriveTrain newModel = (DriveTrain) or.readObject();
 			or.close();
 			newModel.setFile(selectedFile);
+			newModel.setUUID(UUID.randomUUID());
 			newModel.reset();
 			createView(newModel);
 		} catch (IOException iox) {
@@ -380,6 +370,8 @@ public class Main implements ContentChangeListener {
 		mainPanel.insertTab(panel.getName(), panel.getIcon(), panel, panel.getName(), mainPanel.getTabCount()-1);
 		comparisonView.addModel(newModel);
 		panel.addContentChangeListener(this);
+		panel.addComponentListener(new TabListener(true));
+		mainPanel.setSelectedComponent(panel);
 	}
 
 	private void createView() {
@@ -388,6 +380,8 @@ public class Main implements ContentChangeListener {
 		mainPanel.insertTab(panel.getName(), panel.getIcon(), panel, panel.getName(), mainPanel.getTabCount()-1);
 		comparisonView.addModel(panel.getModel());
 		panel.addContentChangeListener(this);
+		panel.addComponentListener(new TabListener(true));
+		mainPanel.setSelectedComponent(panel);
 	}
 
 	/**
@@ -488,18 +482,53 @@ public class Main implements ContentChangeListener {
 	
 	private String getWindowTitle() {
 		String title = Messages.getString("Main.2");
-		String modified = getCurrentPanel().getModel().isModified() ? "*" : "";
-		return getCurrentPanel().getName() + modified + " - " + title;
+		if(getCurrentView() instanceof DriveTrainPanel) {
+			String modified = getCurrentPanel().getModel().isModified() ? "*" : "";
+			return getCurrentPanel().getName() + modified + " - " + title;
+		} else {
+			return title;
+		}
 	}
 
 	public void contentChanged(ChangeEvent e) {
 		mainFrame.setTitle(getWindowTitle());
-		mainPanel.setTitleAt(mainPanel.getSelectedIndex(), getCurrentPanel().getName());
-		mainPanel.setIconAt(mainPanel.getSelectedIndex(), getCurrentPanel().getIcon());
+		if(mainPanel.getSelectedIndex() > -1 && (getCurrentView() instanceof DriveTrainPanel)) {
+			mainPanel.setTitleAt(mainPanel.getSelectedIndex(), getCurrentPanel().getName());
+			mainPanel.setIconAt(mainPanel.getSelectedIndex(), getCurrentPanel().getIcon());
+		}
 	}
 
 	public void styleChanged(ChangeEvent e) {
 		// empty operation
+	}
+
+	private final class TabListener implements ComponentListener {
+		
+		boolean panel;
+		
+		TabListener(boolean panel) {
+			this.panel = panel;
+		}
+		
+		public void componentResized(ComponentEvent e) {
+			// do nothing
+			
+		}
+
+		public void componentMoved(ComponentEvent e) {
+			// do nothing
+			
+		}
+
+		public void componentShown(ComponentEvent e) {
+			setPanelSelected(panel);
+			contentChanged(null);
+		}
+
+		public void componentHidden(ComponentEvent e) {
+			setPanelSelected(!panel);
+			contentChanged(null);
+		}
 	}
 
 

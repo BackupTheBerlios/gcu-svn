@@ -111,7 +111,7 @@ class ImperialUnitSystem implements UnitSystem {
 	}
 
 	public double getMaxDevelopment() {
-		return 200.0;
+		return 140.0;
 	}
 
 	public String getRearCenterUnit() {
@@ -219,6 +219,10 @@ class ImperialUnitSystem implements UnitSystem {
 	}
 
 	public double translateDevelopment(double otherValue) {
-		return 0.0254 * otherValue / PI;
+		return (otherValue / PI) / 0.0254;
+	}
+
+	public double getDevelopmentSteps() {
+		return 10;
 	}
 }
