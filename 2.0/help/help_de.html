@@ -1,0 +1,205 @@
+<html>
+<head>
+<title>GCU Antriebsrechner V. 2.0.0</title>
+</head>
+<body style="font-family: sans-serif">
+<h1 align="center">GCU Antriebsrechner V. 2.0.0</h1>
+<p align="center">Berechnet Übersetzungen und Maße für Fahrradantriebe
+mit Kettenschaltung.</p>
+<p align="center"><img src="cycling.jpg"></p>
+<hr align="center" width="80%">
+<h1>&Uuml;berblick</h1>
+<p><i>Noch ein Ritzelrechner!</i> werden jetzt einige vielleicht sagen.
+Und genau so ist es! Dieser hier kann unter anderem:</p>
+<ul>
+	<li>Maßstabsgetreue grafische Darstellung der Antriebsgruppe</li>
+	<li>Individuelle Berechnung der Schr&auml;glaufqualit&auml;t nach
+	vorgegebenen Grenzwerten</li>
+	<li>Alle Daten können gespeichert und wieder geladen werden</li>
+	<li>Daten können als CSV (Excel), HTML und als PNG-Grafiken exportiert werden</li>
+	<li>Plattformunabhängig, aber trotzdem offline nutzbar</li>
+	<li>Außer zum Java Runtime Enviroment keine Abhängigkeiten von anderer
+	Software</li>
+	<li>Unter der &quot;GNU General Public License&quot; verf&uuml;gbar</li>
+</ul>
+<p>Dieses Progrämmchen ist hauptsächlich während diverser Bahnfahrten auf den
+Wegen von- und zur Arbeit entstanden. Zur Zeit ist mir das Wetter echt
+zu mies, um die Strecke mit dem Rad zu Fahren, daher dachte ich, mache
+ich mal etwas ein klein bisschen nützliches...</p>
+<p>Fehlermeldungen und Anfragen bitte an <a href="mailto:bugs@mutantenzoo.de">bugs@mutantenzoo.de</a></p>
+<p align="center"><big>Viel Spaß!</big></p>
+<h1>Start</h1>
+<p>Die Anwendung benötigt das Java Runtime Environment 5.0 (JRE 1.5.0),
+erhältlich Lizenzkostenfrei unter <a href="http://java.sun.com/j2se/1.5.0/download.jsp">http://java.sun.com/j2se/1.5.0/download.jsp</a>.
+Da das JRE auch von vielen anderen Anwendungen benötigt wird, kann es
+sein, dass es bereits installiert ist. In diesem Fall sind keine
+weiteren Installationsschritte notwendig.</p>
+<h2>Start unter Windows Explorer oder anderem grafischem Dateimanager</h2>
+<p>Sofern das JRE korrekt installiert ist, die Datei &quot;gcu.jar&quot;
+doppelklicken. Die Anwendung sollte nach einer kurzen Verzögerung
+starten.</p>
+<h2>Start von einer Kommandozeile aus</h2>
+<p>Sofern das JRE korrekt installiert ist, in das Verzeichnis wechseln,
+in dem die Datei gcu.jar liegt und folgenden Befehl zum Start eingeben:</p>
+<code>java -jar gcu-2.0.0.jar <i>[Profildateiname ...]</i></code>
+<p><i>Profildateiname</i> ist dabei der Pfad einer Datei, die zuvor von
+GCU gespeichert wurde (Name endet normalerweise mit &quot;.txt&quot; oder &quot;.xml&quot;).
+Wird dieses Argument weggelassen, startet GCU mit einem leeren Profil.</p>
+<p>Ab Version 2.0.0 können auch mehrere Dateien angegeben werden.</p>
+<h1>Benutzung</h1>
+<h2>Kompatibilität mit früheren Versionen</h2>
+<p>in der vorliegenden Version 2.0 wurde die Unterstützung für das in der
+Version 1 noch unterstützte RRP-Format zugunsten des XML-Formats entfernt.</p>
+<p>Vorhandene RRP-Dateien können aber mit einer Version 1.1 oder 1.2 geladen und
+	dann wieder als XML-Datei gespeichert werden. Die älteren XML-Dateien sind
+dann mit der Version 2.x kompatibel.</p>
+<p>Das XML-Format wird in zukünftigen Version nur in der Weise weiterentwickelt,
+	dass mit älteren Versionen gespeicherte XML-Dateien auch mit der jeweils
+	neuesten Version
+	geöffnet werden können. Für das RRP-Format war mir das aber zu aufwendig,
+	deshalb habe ich
+es ab jetzt gleich von vornherein deaktiviert, um späteren Ärger zu vermeiden.</p>
+<h2>Dokumentenreiter</h2>
+<p>Ab Version 2.0.0 können mehrere Profile gleichzeitig geladen und bearbeitet
+	werden. Die Dokumente werden dann in einer Karteikartenansicht angzeigt.</p>
+	<p>Der eigentliche Nutzeffekt dieser Neuerung zeigt sich auf der letzten (am
+weitesten rechts liegenden) Karteikarte. Siehe <a href="#comparison">die Beschreibung der Vergleichsansicht</a> für weitere Informationen.</p>
+<h2>Eingabemaske</h2>
+<p>Auf der linken Seite des Fensters werden die Eingabeparameter für die
+Berechnungen eingegeben. Dabei werden zwei Aspekte unterschieden:
+Parameter, die für die eigentliche Übersetzungsberechnung notwendig
+sind, und Parameter, die für die Berechnung des Kettenschräglaufs und
+der grafischen Darstellung benötigt werden.</p>
+<p>Diese Aspekte sind auf zwei Registerkarten verteilt, die unabhängig
+voneinander ausgefüllt werden können.</p>
+<p>Die beiden Registerkarten sind jeweils wiederum in drei Bereiche
+aufgeteilt:<br>
+Kettenblätter, Ritzel und allgemeine Einstellungen.</p>
+<h3>Registerkarte &quot;Übersetzung&quot;</h3>
+<h4>Kettenblätter</h4>
+<p>Hier sind die Zähnezahlen der Kettenblätter in absteigender
+Reihenfolge einzutragen (eine andere Reihenfolge geht auch, kommt aber
+in der Praxis kaum vor).</p>
+<p>Zeilen können mit dem Mülleimersymbol gelöscht werden, ein Eintrag in
+der untersten, leeren Zeile erzeugt automatisch ein neues Kettenblatt
+mit der entsprechenden Zähnezahl. Die Änderungen werden sofort grafisch
+und in der Ausgabetabelle angezeigt.</p>
+<h4>Ritzel</h4>
+<p>Hier gilt das gleiche wie oben bei &quot;Kettenblätter&quot;
+beschrieben, allerdings sollten hier die Zähnezahlen des Ritzelpakets in
+<b>aufsteigender</b> Reihenfolge angegeben werden.</p>
+<p>Sobald genügend Daten eingegeben wurden, füllt sich die Grafik und
+die Ausgabetabelle mit den möglichen Gangkombinationen (siehe unten).</p>
+<h4>Allgemein</h4>
+<p>Hier wird entweder der Radumfang oder der Raddurchmesser in der
+angezeigten Einheit angegeben, je nachdem was gerade bekannt ist. Der
+jeweils andere Wert wird dann automatisch berechnet und angezeigt, weil
+diese Werte direkt voneinander abhängig sind.</p>
+<p>Hier kann außerdem eine Trittfrequenz eingegeben werden, die zur
+Berechnung der Geschwindigkeiten in den jeweiligen Gängen benutzt wird.</p>
+<h3>Registerkarte &quot;Maße&quot;</h3>
+<h4>Kettenblätter</h4>
+<p>Hier ist die Kettenlinie und der Kettenblattabstand des Kurbelsatzes
+einzugeben. Die Kettenlinie ist der Abstand von der Ebene
+Rahmenlängsachse/Rahmenhochachse bis zur Mitte zwischen dem äußersten
+und innersten Kettenblatt. Bei Einfachkurbeln ist also die Kettenlinie
+der Abstand zwischen der Rahmenmitte und den Spitzen der Zähne des
+Kettenblattes, bei Zweifachkurbeln zwischen der Rahmenmitte und der
+Mitte zwischen den Spitzen der beiden Kettenblätter, und bei
+Dreifachkurbeln zwischen der Rahmenmitte und den Spitzen des mittleren
+Kettenblatts.</p>
+<p>Der Kettenblattabstand wird von Mitte zu Mitte gemessen und ist für
+die Berechnung der individuellen Kettenlinien der einzelnen
+Kettenblätter, und damit für die Berechnung des Schräglaufs, sowie für
+die grafische Darstellung notwendig.</p>
+<h4>Ritzel</h4>
+<p>Hier gilt sinngemäß das gleiche wie für die Kettenblätter. Leider ist
+die Kettenlinie für ein Ritzelpaket nicht so richtig schön meßbar, aber
+man könnte z.B. mit einer alten Hinterachse, an die rechtwinklig eine
+Metalleiste angebracht ist, die Rahmenmitte auf die Hinterachse
+übertragen und dann messen.</p>
+<p><a href="http://www.sheldonbrown.com/gloss_ch.html#chainline">Sheldon
+Brown (http://www.sheldonbrown.com/gloss_ch.html#chainline)</a>
+beschreibt ebenfalls (auf Englisch), wie die hintere Kettenlinie
+gemessen werden kann.</p>
+<h4>Allgemein</h4>
+<p>Hier wird die Hinterbaulänge eingegeben, also der Abstand zwischen
+Mitte Tretlagerwelle und Mitte Hinterachse.</p>
+<p>Dieser Wert ist ebenfalls indirekt für die Berechnung des Schräglaufs
+interessant</p>
+<p>Außerdem können hier die Toleranzgrenzen (in Grad) für den Schräglauf
+eingegeben werden. Die Gradzahlen geben an, wie weit die Kette aus der
+exakten Geraden beim Umlaufen um Kettenblatt und Ritzel seitlich
+&quot;verbogen&quot; werden darf, um noch grün (optimal) bzw. gelb
+(akzeptabel) angezeigt zu werden.</p>
+<h2>Menü und Werkzeugleiste &quot;Ansicht&quot;</h2>
+<p>Aus den grafischen und tabellarischen Ansichten können abhängig vom
+Schräglauf Gänge aus- oder eingeblendet werden.</p>
+<p>Hier gibt es die Stufen</p>
+<ul>
+	<li><img src="../toolbarButtonGraphics/general/AlignTop24.gif">Nur
+	Optimale Gänge</li>
+	<li><img src="../toolbarButtonGraphics/general/AlignCenter24.gif">Akzeptable
+	und Optimale Gänge</li>
+	<li><img src="../toolbarButtonGraphics/general/AlignBottom24.gif">Alle
+	Gänge, auch welche mit großem Schräglauf</li>
+</ul>
+<p>Dies soll die Übersichtlichkeit verbessern, falls man sich nur für
+die wirklich nutzbaren Gänge interessiert. Standardmäßig werden beim
+Programmstart alle Gänge angezeigt.</p>
+<h2>Grafik</h2>
+<p>Die Grafik zeigt den Antrieb von oben. Die Rahmenmitte ist durch eine
+Strichpunktlinie angedeutet.</p>
+<p>Ansonsten sollten die angezeigten Maße dem entsprechen, was auf der
+Registerkarte &quot;Maße&quot; angezeigt wird.</p>
+<p>Mit dem Schieberegler kann die Vergrößerung eingestellt werden, durch
+Klicken und ziehen mit der Maus kann der Ansichtsbereich verschoben
+werden.</p>
+<p>Wer eine Maus mit Rad besitzt, kann den Vergrößerungsfaktor auch
+durch drehen am Mausrad verändern.</p>
+<p>Wird in der Ausgabetabelle ein Gang ausgewählt, so zeigt die Grafik
+nur ie Kettenführung für diesen einen Gang an, und zwar in der Farbe,
+die dem Schräglaufzustand der Kette in diesem Gang entspricht. Grün
+bedeutet, dass der Schräglauf unterhalb der Toleranzgrenze für den
+optimalen Zustand bleibt, gelb bezeichnet einen immer noch akzeptablen
+Zustand, und Rot bezeichnet einen nicht nutzbaren Gang.</p>
+<h2>Ausgabetabelle</h2>
+<p>Hier werden die errechneten Werte angezeigt, gleichzeitig zeigt ein
+Farbbalken die Entfaltung und (durch seine Farbe) den Schräglaufzustand
+in jedem vorhandenen Gang an.</p>
+<p>Die Tabelle lässt sich nach belieben durch Klicken auf die
+Spaltenüberschriften umsortieren. Dabei gibt es drei Zustände: Sortiert
+nach Kettenblättern und Ritzeln, sortiert nach Entfaltung aufsteigend
+und sortiert nach Entfaltung absteigend.</p>
+<p>Ein kleines Pfeilsymbol in der Spaltenüberschrift zeigt den
+jeweiligen Zustand an, d.h. wenn kein Symbol angezeigt wird, befinden
+wir uns im Zustand 1.</p>
+<p>Durch Anklicken mit der Maus können einzelne Gänge ausgewählt werden,
+die dann in der Grafik entsprechend hervorgehoben dargestellt werden.
+Jede Umsortierung, Eingabe von Werten oder Fenstergrößenänderung hebt
+die Auswahl wieder auf und Zeigt in der Grafik wieder alle nach der
+Filterung unter &quot;Ansicht&quot; sichtbaren Gänge an.</p>
+<h2>Menü &quot;Optionen&quot;</h2>
+<h3>SI-Einheiten / Angloamerikanische Einheiten</h3>
+<p>GCU kann intern entweder mit SI (metrischen) Einheiten oder
+mit angloamerikanischen (Imperial, Customary) Einheiten rechnen.</p>
+<p>Wird im Menü &quot;Optionen&quot; das Einheitensystem umgestellt,
+so werden alle eingegebenen Werte in das entsprechende System
+umgerechnet.</p>
+<p>Die Auswahl des Einheitensystems hat nicht nur Auswirkungen
+auf die reinen Längeneinheiten, sondern bestimmt auch, ob
+in der Ausgabetabelle eine <i>Entfaltung</i> oder 
+ein Wert für die <i>Gear Inches</i> angezeigt wird.</p>
+<p>Sind angloamerikanische Einheiten ausgewählt, dann wird in
+der Ausgabetabelle die Entfaltung als <i>Gear Inches</i>;
+angezeigt.<i>Gear Inches</i> sind ganz einfach Laufraddurchmesser *
+Übersetzungsverhältnis (in Zoll).</p><p>Im metrischen System wird die
+Entfaltung in Metern angezeigt, dieser Wert errechnet sich aus
+Laufradumfang * Übersetzungsverhältnis.</p>
+<h2><a name="comparison">Vergleichsansicht</a></h2>
+<p>Auf der letzen Karteikarte (Reiter ganz rechts) befindet sich - sofern überhaupt mindestens ein Profil geladen ist - eine Vergleichsansicht der geladenen Profile. Jedes Profil wird auf einer eigenen Zeile angezeigt, dessen Gänge werden durch Pfeile in der Farbe des jeweiligen Schräglaufstatus nach ihrer Entfaltung geordnet angedeutet. Dadurch erhält man einen schnellen Überblick über die Abstände zwischen den einzelnen Gängen, den Gesamtübersetzungsumfang und die Nutzbarkeit von Gängen, und das alles auf einen Blick im direkten Vergleich für mehrere Antriebsprofile.</p>
+<p>Wie bei den Profilen ist auch hier &quot;Speichern Als&quot;, Exportieren und Drucken möglich, allerdings kann diese Karteikarte nicht manuell geschlossen bzw. entfernt werden. Das einfache Speichern (ohne Angabe eines Dateinamens) ist ebenfalls nicht möglich, weil die Vergleichsansicht auch nicht als solche geladen werden kann. Außerdem verhalten sich die Funktionen etwas anders als bei den Profil-Karteikarten.</p><p>Die Druckfunktion druckt nur die angezeigte Grafik aus. je nach Anzahl der Profile empfehle ich den Ausdruck im Querformat.</p>
+<p>Der Export der Vergleichsansicht funtioniert momentan nur als CSV-Datei oder als PNG-Grafik mit einer Breite von 1024 Pixeln. In einer zukünftigen Version wird dies auch noch konfigurierbar sein.</p>
+<p>&quot;Speichern Als&quot; hat bei der Vergleichsansicht eine ganz besondere Bedeutung: Es wird eine Datei erzeugt, die alle momentan geöffneten Profile zusammen enthält. Diese Datei kann ganz normal mit GCU später wieder geladen werden, und die einzelnen Profile erscheinen wieder als Karteireiter. Damit wird natürlich auch die Vergleichsansicht wiederhergestellt, und die geladenen Profile können bearbeitet, separat gespeichert, oder verglichen und wieder gemeinsam gespeichert werden.</p>
+</body>
+</html>

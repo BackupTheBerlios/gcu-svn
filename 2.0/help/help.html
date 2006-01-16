@@ -1,0 +1,185 @@
+<html>
+<head>
+<title>GCU Bicycle Drive Train Calculator V. 2.0.0</title>
+</head>
+<body style="font-family: sans-serif">
+<h1 align="center">GCU Bicycle Drive Train Calculator V. 2.0.0</h1>
+<p align="center">Computes transmissions and geometry for
+derailleur-geared bicycles.</p>
+<p align="center"><img src="cycling.jpg"></p>
+<hr align="center" width="80%">
+<h1>Overview</h1>
+<p><i>Another gear calculator!</i> Most of you might say. And, actually,
+that's exactly what it is! This one does, among other things:</p>
+<ul>
+	<li>Draw a scale graphic of the drive train</li>
+	<li>Compute chainline characteristics according to user-defined limits</li>
+	<li>Allow the user to load and save drive train profiles</li>
+	<li>Export data as CSV files (MS Excel), HTML, and PNG images.</li>
+	<li>Platform independent, offline use</li>
+	<li>Doesn't depend on third-party software other than the Java Runtime
+	Environment (JRE)</li>
+	<li>Licensed under &quot;GNU General Public License&quot;</li>
+</ul>
+<p>This thingy is the result of many hours of train riding during the
+past few cold and rainy days where I was either too lazy or to sick to
+go to my daily work by bike. I hope it will be useful...</p>
+<p>Send bug reports and feedback to <a href="mailto:bugs@mutantenzoo.de">bugs@mutantenzoo.de</a></p>
+<p align="center"><big>Have fun!</big></p>
+<h1>Getting Started</h1>
+<p>This application uses the JRE 5.0 (1.5.0) or higher, available from <a
+	href="http://java.sun.com/j2se/1.5.0/download.jsp">http://java.sun.com/j2se/1.5.0/download.jsp</a>. Chances are that
+it is already installed on your computer, so, before dowloading, check
+if you have it already.</p>
+<p>There are no other installation activities required on your side.</p>
+<h2>Starting with Windows Explorer or other graphical file manager</h2>
+<p>When you are sure the JRE has been installed correctly, launch the
+file &quot;gcu.jar&quot; in the usual way you launch applications in
+your file manager.</p>
+<p>After a few seconds, the GCU main window should show up.</p>
+<h2>Starting from a console</h2>
+<p>Change to the directory where the &quot;gcu.jar&quot; file is
+located, and exeute this command:</p>
+<code>java -jar gcu.jar <i>[&lt;profile-file-name&gt; ...]</i></code>
+<p><i>profile-file-name</i> is the optional path of a file that has been
+saved by GCU before. The file name usually ends with &quot;.rrp&quot;</p>
+<p>If you omit this argument, GCU starts with a new empty profile.</p>
+<p>As of version 2.0.0, you can give multiple file names as arguments</p>
+<h1>Usage</h1>
+<h2>Compatibility</h2>
+<p>With the 2.0 version, support for the 1.0 &quot;RRP&quot; file format is obsolete. USe the XML format in the future. If you want to convert RRP files saved with an old version, open the RRP file with the 1.1 or 1.2 version and save it as an XML file. XML files will be guaranteed to be readable by future versions of GCU, but I didn't want to maintain two file formats in this way, so I dropped RRP support just right now.</p>
+<h2>Tabbed Profile View</h2>
+<p>As of Version 2.0.0, the user interface has changed to a multi-document style, i.e. now you can load multiple drive train profiles at the same time. They will be displayed as tabs so that you can switch among them as you like.</p><p>The real reason for this, however, is the new <a href="#comparison">comparison</a> feature (see <a href="#comparison">below</a>).</p>
+<h2>Input Form</h2>
+<p>On the left in the main window are the input controls that must be
+filled with the drive train's data.</p>
+<p>GCU has two different aspects of gear calculation: Parameters that
+affect translation, development (gear inches), and speed, and parameters
+that affect the graphical representation and chainline quality.</p>
+<p>These aspects are seperated on two tabbed panes that can be filled in
+independently of each other.</p>
+<p>The two tabbed panes themselves are divided into three sections:
+Chainwheels, Sprockets, and General Settings.</p>
+<h3>Tab &quot;Translation&quot;</h3>
+<h4>Chainwheels</h4>
+<p>Here you enter the number of teeth for the front chainwheels
+(chainrings, front sprockets). Although possible otherwise, you should
+enter the chainring tooth counts in descending order to reflect the
+configuration of a real-world bicycle.</p>
+<p>You can remove a single row by clicking on the trash can icon. If
+something is entered into the empty row at the bottom of the input
+table, a new chainring is added. All changes are reflected immediately
+in drawing and output table after you leave the input field.</p>
+<h4>Sprockets</h4>
+<p>This is for entering the parameters for the rear sprockets. Here goes
+the same as above under &quot;Chainwheels&quot;, with the notable
+exception that you now should enter the tooth counts in <b>ascending</b>
+order.</p>
+<p>As soon as you have entered enough data, all possible gear
+combinations are shown in the drawing and output table (read on for
+details on these).</p>
+<h4>General</h4>
+<p>Here you enter either the wheel diameter or the wheel circumference
+in the unit shown right of the input field, it doesn't matter which one
+you enter, the other one will be computed and shown immediately.</p>
+<p>Additionally, you can enter a cadence (pedalling frequency), which
+will be used to compute the speed of the bicycle in the different gears.</p>
+<h3>Tab &quot;Geometry&quot;</h3>
+<h4>Chainrings</h4>
+<p>Enter the chainline and the chainring spacing of your crankset here.</p>
+<p>The <i>chainline</i> is the distance from the plane defined by the
+bicycle frame's forward and upward axes to the center of the distance
+between the largest and the smallest chainring. If this sounds a bit
+complicated, just have a look at the graphic in the application, and hopefully things will
+become clearer.</p>
+<p>The chainring pitch is the distance between the 
+center of one chainring and the center of the next, and is used for
+chainline computations and the graphical representation.</p>
+<h4>Sprockets</h4>
+<p>Here, again, this is similar in spirit to the chainring settings.
+Unfortunately, measuring the rear chainline is not really as easy as
+measuring it in the front, but using an old rear axle with an
+orthogonally attached steel rod, you could project the frame center's
+position onto the rear axle and then measure the distance to the middle
+of the rear sprocket block. Another method to measure the rear chainline
+is explained by <a
+	href="http://www.sheldonbrown.com/gloss_ch.html#chainline">Sheldon
+Brown (http://www.sheldonbrown.com/gloss_ch.html#chainline)</a></p>
+<h4>General</h4>
+<p>Enter the <i>Rear Center</i> of your bike here. The Rear Center is
+the distance from the center of the crank axle to the center of the rear
+axle.</p>
+<p>We need this value for chainline computations and for the drawing.</p>
+<p>Under &quot;Chain Straightness&quot; you can enter two tolerance
+values (in degrees) for the maximum angle that the chain may be bent by
+to be considered a certain condition.</p>
+<p>All chainlines bending the chain at an angle lower than the
+&quot;optimal&quot; limit are displayed in the drawing and output table
+as green lines. An angle between the &quot;optimal&quot; and the
+&quot;acceptable&quot; limit will show up in yellow, and everything
+above the &quot;acceptable&quot; limit will be marked in red.</p>
+<h2>Menu / Toolbar &quot;View&quot;</h2>
+<p>You can filter the gears shown in the drawing and the output table
+according to their chainline condition.</p>
+<p>There are three options:</p>
+<ul>
+	<li><img src="../toolbarButtonGraphics/general/AlignTop24.gif">Only
+	optimal gears</li>
+	<li><img src="../toolbarButtonGraphics/general/AlignCenter24.gif">Acceptable
+	and optimal gears</li>
+	<li><img src="../toolbarButtonGraphics/general/AlignBottom24.gif">All
+	gears</li>
+</ul>
+<p>This feature should increase readability in case you are only
+interested in the gears you would actually use. By default, all gears
+are shown.</p>
+<h2>Drawing</h2>
+<p>The drawing is a top view of the drive train. The frame centerline is
+depicted by a dash-dotted line.</p>
+<p>The measures shown on the drawing represent the values entered in the
+&quot;Geometry&quot; form.</p>
+<p>You can adjust the zoom factor with the slider control. 'Pan'ning is done by
+clicking and dragging the mouse on the drawing area.</p>
+<p>If you have a wheel mouse, you can also use the mouse wheel to adjust
+the zoom factor.</p>
+<h2>Output Table</h2>
+<p>Here, the results of the computations are shown. The development (or
+<i>gear inches</i>, depending on the measurement system in use) are visualized by a colored bar, the color of which
+represents the chainline status according to the rules explained above.
+</p>
+<p>The table rows can be sorted by clicking the header cells according
+to three different criteria: Chainwheel/sprocket size, translation
+descending, and translation ascending.</p>
+<p>The small arrow icon in the table header depicts the kind of ordering
+currently in effect.</p>
+<p>By clicking on a row, you can select a gear that will be shown
+highlighted in the drawing. Entering new values, changing the window
+size, or changing the table sorting order clears the selection and shows
+all visible gears in the drawing again.</p>
+<h2>&quot;Options&quot; Menu</h2>
+<h3>Metric Units / Imperial Units</h3>
+<p>GCU can compute values in two different measuring systems,
+namely the metric system (SI system), or the anglo-american
+system (imperial / customary units).</p>
+<p>Chosing a unit system not only affects the pure unit
+representation of values entered by the user or displayed
+by the application, it also detrmines whether
+the <i>Development</i> in meters or the <i>Gear Inches</i> 
+are shown in the output table.</p>
+<p><i>Gear Inches</i> are a common notion in countries that
+use inch-based measuring systems, this value is the 
+translation factor multiplied by the rear wheel diameter in
+inches.</p><p>The <i>Development</i> in meters is displayed
+if the metric system is in effect. The development value
+represents the distance traveled with one full crank round.
+It is calculated as the wheel circumference in meters multiplied
+by the translation ratio.</p>
+<h2><a name="comparison">Comparison View</a></h2>
+<p>Version 2.0.0 comes with a new drive train comparison view. It shows all open drive train profiles in one window in an alternative representation with the development (or gear inches) on the X-axis and the drive train profiles, one in a row, on the y-axis.</p>
+<p>Now you can see gear distribution and total translation range at the first glance and in comparison with other gear configurations.</p>
+<p>You can also &quot;Save As&quot;, Export, and Print the comparison view. However, the comparison view cannot be closed individually, and the Save As, Export, and Print functions have slightly different semantics than in the drive train tabs.</p>
+<p>The 'Print' action only prints the comparison view.</p>
+<p>'Export' is possible as CSV (with all drive drain profiles in one CSV file), or PNG graphics with a fixed width of 1024 pixels (this will be made configurable in a future version).</p>
+<p>'Save As' saves all currently open drive trains into one single file. This file can be opened by GCU in the usual way at a later time, restoring all profiles to individual tabs again (and thus also restoring the comparison view). You can then save or edit the profiles individually, or save the comparison view again, which will save all the profiles again into one single file.</p>
+</body>
+</html>
