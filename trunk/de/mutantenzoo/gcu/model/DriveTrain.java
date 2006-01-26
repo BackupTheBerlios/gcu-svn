@@ -29,6 +29,7 @@ import java.text.ParseException;
 import java.util.UUID;
 
 import de.mutantenzoo.gcu.units.UnitSystem;
+import de.mutantenzoo.raf.FileName;
 import de.mutantenzoo.raf.Measure;
 import de.mutantenzoo.raf.Quantifiable;
 
@@ -36,7 +37,7 @@ import de.mutantenzoo.raf.Quantifiable;
  * @author MKlemm
  * 
  */
-public class DriveTrain implements Serializable {
+public class DriveTrain implements Serializable, Comparable<DriveTrain> {
 
 
 	/**
@@ -72,7 +73,7 @@ public class DriveTrain implements Serializable {
 		if(name != null) {
 			return name;
 		} else if(file != null) {
-			return file.getName();
+			return FileName.strip(file.getName());
 		} else {
 			return null;
 		}
@@ -306,5 +307,9 @@ public class DriveTrain implements Serializable {
 
 	public void setUUID(UUID uuid) {
 		this.uuid = uuid;
+	}
+
+	public int compareTo(DriveTrain o) {
+		return getUUID().toString().compareTo(o.getUUID().toString());
 	}
 }

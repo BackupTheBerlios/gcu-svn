@@ -67,6 +67,7 @@ import de.mutantenzoo.gcu.model.DriveTrainStyle;
 import de.mutantenzoo.gcu.units.UnitSystem;
 import de.mutantenzoo.raf.ContentChangeListener;
 import de.mutantenzoo.raf.ContentPanel;
+import de.mutantenzoo.raf.FileName;
 
 /**
  * @author MKlemm
@@ -297,10 +298,7 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 					selectedFile = new File(selectedFile.getAbsolutePath() + ".rrp"); //$NON-NLS-1$
 				}
 			} else { */
-				if (!selectedFile.getName().toLowerCase().endsWith(".xml")
-						&& !selectedFile.getName().toLowerCase().endsWith(".txt") ) { //$NON-NLS-1$
-					selectedFile = new File(selectedFile.getAbsolutePath() + ".txt"); //$NON-NLS-1$
-				}
+				selectedFile = FileName.extend(selectedFile, ".txt");
 			//}
 			model.setFile(selectedFile);
 			model.setName(null);
@@ -454,14 +452,9 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 			File selectedFile = fileChooser.getSelectedFile();
 			boolean htmlSelected = fileChooser.getFileFilter() == htmlFilter;
 			if(htmlSelected) {
-				if (!selectedFile.getName().toLowerCase().endsWith(".html")
-						&& !selectedFile.getName().toLowerCase().endsWith(".htm") ) { //$NON-NLS-1$
-					selectedFile = new File(selectedFile.getAbsolutePath() + ".html"); //$NON-NLS-1$
-				}
+				selectedFile = FileName.extend(selectedFile, ".html");
 			} else {
-				if (!selectedFile.getName().toLowerCase().endsWith(".csv")) { //$NON-NLS-1$
-					selectedFile = new File(selectedFile.getAbsolutePath() + ".csv"); //$NON-NLS-1$
-				}
+				selectedFile = FileName.extend(selectedFile, ".csv");
 			}
 			if (selectedFile.exists()) {
 				if (selectedFile.canWrite()) {

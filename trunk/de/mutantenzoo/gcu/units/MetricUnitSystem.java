@@ -28,7 +28,6 @@ class MetricUnitSystem implements UnitSystem {
 	private static final DecimalFormat CHAINLINE_FORMAT = new DecimalFormat("##");
 	private static final DecimalFormat CADENCE_FORMAT = new DecimalFormat("###");
 	private static final float[] DASH = {50.0f, 10.0f, 10.0f, 10.0f};
-	
 	MetricUnitSystem() {
 		// API consumer cannot instantiate
 	}
@@ -195,10 +194,6 @@ class MetricUnitSystem implements UnitSystem {
 
 	public double translateDevelopment(double otherValue) {
 		return otherValue * 0.0254 * PI;
-	}
-
-	public double getDevelopmentSteps() {
-		return 1;
 	}
 
 }

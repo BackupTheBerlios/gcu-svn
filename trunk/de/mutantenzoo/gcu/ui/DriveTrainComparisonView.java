@@ -25,18 +25,16 @@
  */
 package de.mutantenzoo.gcu.ui;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.Stroke;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Line2D;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
@@ -45,11 +43,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.HashMap;
+import java.util.TreeMap;
 
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.filechooser.FileFilter;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -59,57 +58,81 @@ import de.mutantenzoo.gcu.io.DriveTrainEncoder;
 import de.mutantenzoo.gcu.io.DriveTrainPNGWriter;
 import de.mutantenzoo.gcu.model.ChainlineStatus;
 import de.mutantenzoo.gcu.model.DriveTrain;
-import de.mutantenzoo.gcu.model.Gear;
+import de.mutantenzoo.gcu.ui.Distributor.Mapper;
 import de.mutantenzoo.gcu.units.UnitSystem;
 
 /**
  * @author MKlemm
  *
  */
-public class DriveTrainComparisonView extends JComponent implements Printable, GearView {
+public class DriveTrainComparisonView extends JScrollPane implements Printable, Zoomable, GearView, Mapper {
+
 
 	/**
 	 * Generated SUID
 	 */
 	private static final long serialVersionUID = -1444852719712673897L;
-	private static final Font font = new Font("Verdana", Font.PLAIN, 10);
-	private static final double LEFT_MARGIN = 5.0;
-	private static final double RIGHT_MARGIN = 5.0;
-	private static final double BOTTOM_MARGIN = 40.0;
-	private static final double SPACING = 40.0;
-	private static final GeneralPath triangle = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
+	private static final int LEFT_MARGIN = 5;
+	private static final int TOP_MARGIN = 5;
+	private static final int SPACING = 48;
+	private static final int MIN_TICK_SPACING = 24;
+	private static final double[] SCALE_STEPS = {100,50,25,20,10,5,2,1,0.5,0.25,0.2,0.1};
+	
+	private static final FontRenderContext frc = new FontRenderContext(null, true, true);
 	
 	private Dimension preferredSize = new Dimension(600,400);
 	private UnitSystem unitSystem = UnitSystem.METRIC;
-	private HashMap<DriveTrain, TextLayout> driveTrains = new HashMap<DriveTrain,TextLayout>();
+	private TreeMap<DriveTrain, TextLayout> driveTrains = new TreeMap<DriveTrain,TextLayout>();
 	private ChainlineStatus chainlineStatus = ChainlineStatus.ALL;
 	
-	private transient double maxNameWidth = 0;
-
+	private transient int maxNameWidth = 0;
+	private double zoomFactor = 1.0;
 	
 	/**
 	 * Default Constructor
 	 */
 	public DriveTrainComparisonView() {
 		super();
-		triangle.moveTo(0,0);
-		triangle.lineTo(-5f,5f);
-		triangle.lineTo(5f,5f);
-		triangle.closePath();
-	}
-	
-	public void addModel(DriveTrain model) {
-		driveTrains.put(model, null);
-	}
-	
-	private void prepareText(Graphics2D g) {
-		for(DriveTrain d : driveTrains.keySet()) {
-			TextLayout tl = new TextLayout(d.getName(), font, g.getFontRenderContext());
-			if(tl.getBounds().getWidth() > maxNameWidth) {
-				maxNameWidth = tl.getBounds().getWidth();
+		setFont(new Font("Verdana", Font.PLAIN, 11));
+		setViewportView(new GearChart(this));
+		getViewport().getView().setFont(getFont());
+		setColumnHeaderView(new Rule(this));
+		setRowHeaderView(new DriveTrainTitles(this));
+		getRowHeader().setViewSize(new Dimension(getNameViewportWidth(), getViewHeight()));
+		addComponentListener(new ComponentListener() {
+			public void componentResized(ComponentEvent e) {
+				sizeChanged();				
 			}
-			driveTrains.put(d, tl);
+
+			public void componentMoved(ComponentEvent e) {
+				// do nothing
+				
+			}
+
+			public void componentShown(ComponentEvent e) {
+				// do nothing
+				
+			}
+
+			public void componentHidden(ComponentEvent e) {
+				// do nothing
+				
+			}});
+		setCorner(UPPER_LEADING_CORNER, new StretchControl(this));
+		sizeChanged();
+	}
+	
+	/**
+	 * 
+	 * @param model
+	 */
+	public void addModel(DriveTrain model) {
+		TextLayout tl = new TextLayout(model.getName(), getFont(), frc);
+		if(tl.getBounds().getWidth() > maxNameWidth) {
+			maxNameWidth = (int)(tl.getAdvance()+0.5f);
+			sizeChanged();
 		}
+		driveTrains.put(model, tl);		
 	}
 	
 	public void removeModel(DriveTrain model) {
@@ -117,98 +140,16 @@ public class DriveTrainComparisonView extends JComponent implements Printable, G
 		maxNameWidth = 0;
 		for(TextLayout tl : driveTrains.values()) {
 			if(tl != null && tl.getBounds().getWidth() > maxNameWidth) {
-				maxNameWidth = tl.getBounds().getWidth();
+				maxNameWidth = (int)(tl.getAdvance()+0.5f);
 			}
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
-	 */
-	@Override
-	protected void paintComponent(Graphics g1) {
-		Graphics2D g = (Graphics2D)g1;
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		prepareText(g);
-		prepareTransform(g);
-		drawAxes(g);
-		drawDriveTrains(g);
+	public void removeAllModels() {
+		driveTrains.clear();
+		maxNameWidth = 0;
 	}
 
-	private void drawAxes(Graphics2D g) {
-		Line2D xAxis = new Line2D.Double(0, 0, map(unitSystem.getMaxDevelopment()), 0);
-		g.draw(xAxis);
-		Line2D yAxis = new Line2D.Double(0, 0, 0, -SPACING * (1+driveTrains.size()));
-		g.draw(yAxis);
-		for(double n=0; n<unitSystem.getMaxDevelopment(); n += unitSystem.getDevelopmentSteps() ) {
-			Stroke origStroke = g.getStroke();
-			Color origColor = g.getColor();
-			g.setColor(Color.GRAY);
-			g.setStroke(new BasicStroke(0.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1.0f, new float[]{2f,2f}, 2f));
-			Line2D tick = new Line2D.Double(map(n), 5, map(n), -SPACING * (1+driveTrains.size()));
-			g.draw(tick);
-			g.setStroke(origStroke);
-			g.setColor(origColor);
-			TextLayout tl = new TextLayout(unitSystem.getDevelopmentFormat().format(n), font, g.getFontRenderContext());
-			tl.draw(g, (float)(map(n)-tl.getBounds().getWidth() / 2.0), (float)(6.0 + tl.getBounds().getHeight()));
-		}
-	}
-	
-	private double map(double value) {
-		double fact = (getBounds().getWidth() - 2.0*LEFT_MARGIN - maxNameWidth - RIGHT_MARGIN) / unitSystem.getMaxDevelopment();
-		return value * fact;
-	}
-	
-	private void drawDriveTrains(Graphics2D g) {
-		double y = 0;
-		for(DriveTrain model : driveTrains.keySet()) {
-			drawGears(g, y-=SPACING, model);
-		}
-	}
-	
-	private void drawGears(Graphics2D g, double y, DriveTrain model) {
-		TextLayout tl = driveTrains.get(model);
-		
-		tl.draw(g, (float)(-tl.getBounds().getWidth()-LEFT_MARGIN), (float)(y+tl.getBounds().getHeight()+4.0));
-		
-		Line2D axis = new Line2D.Double(-maxNameWidth-LEFT_MARGIN, y, map(unitSystem.getMaxDevelopment()), y);
-		Stroke origStroke = g.getStroke();
-		g.setStroke(new BasicStroke(0.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1.0f, new float[]{2f,2f}, 2f));
-		g.setColor(Color.BLUE);
-		g.draw(axis);
-		g.setColor(Color.BLACK);
-		g.setStroke(origStroke);
-		for(int n=0; n<model.getGearCount(); n++) {
-			Gear gear = model.getGear(n);
-			if(chainlineStatus.has(gear.getChainlineStatus())) {
-				drawGear(g, y, gear);
-			}
-		}
-	}
-
-	private void drawGear(Graphics2D g, double y, Gear gear) {
-		g.setColor(GearRenderer.getColorFromChainlineStatus(gear.getChainlineStatus()));
-		AffineTransform origTransform = g.getTransform();
-		if(gear.getParent().getUnitSystem().equals(unitSystem)) {
-			g.translate(map(gear.getDevelopment().getValue()), y);
-		} else {
-			g.translate(map(unitSystem.translateDevelopment(gear.getDevelopment().getValue())), y);
-		}
-		g.draw(triangle);
-		g.setColor(Color.BLACK);
-		TextLayout tl = new TextLayout(gear.getChainwheel().getSize()+":"+gear.getSprocket().getSize(), font, g.getFontRenderContext());
-		//AffineTransform textTransform = AffineTransform.getTranslateInstance(tl.getBounds().getHeight() / 2.0, 6.0+tl.getBounds().getWidth());
-		g.transform(new AffineTransform(0,-1,1,0,0,0));
-		//Shape t = tl.getOutline(new AffineTransform(textTransform));
-		tl.draw(g, -(float)(tl.getBounds().getWidth())-6f, (float)(tl.getBounds().getHeight() / 2.0));
-		g.setTransform(origTransform);
-	}
-
-
-	private void prepareTransform(Graphics2D g) {
-		g.translate(2.0*LEFT_MARGIN + maxNameWidth, getBounds().getHeight() - BOTTOM_MARGIN);
-	}
-	
 
 	/**
 	 * @return Returns the preferredSize.
@@ -224,10 +165,6 @@ public class DriveTrainComparisonView extends JComponent implements Printable, G
 	@Override
 	public void setPreferredSize(Dimension preferredSize) {
 		this.preferredSize = preferredSize;
-	}
-
-	public void removeAllModels() {
-		driveTrains.clear();
 	}
 
 	public void export() {
@@ -272,7 +209,7 @@ public class DriveTrainComparisonView extends JComponent implements Printable, G
 			try {
 				ps = new PrintStream(new FileOutputStream(selectedFile));
 				if(pngSelected) {
-					DriveTrainPNGWriter.writePNG(ps, this, 1024, (int)(BOTTOM_MARGIN + SPACING * (1+driveTrains.size())));
+					DriveTrainPNGWriter.writePNG(ps, this, 1024, (TOP_MARGIN + SPACING * (1+driveTrains.size())));
 				} else {
 					DriveTrainCSVWriter.writeCSV(ps, driveTrains.keySet());
 				}
@@ -406,5 +343,98 @@ public class DriveTrainComparisonView extends JComponent implements Printable, G
 		return false;
 	}
 
+	/**
+	 * @return Returns the chainlineStatus.
+	 */
+	ChainlineStatus getChainlineStatus() {
+		return chainlineStatus;
+	}
+
+	/**
+	 * @param chainlineStatus The chainlineStatus to set.
+	 */
+	void setChainlineStatus(ChainlineStatus chainlineStatus) {
+		this.chainlineStatus = chainlineStatus;
+	}
+
+	/**
+	 * @return Returns the driveTrains.
+	 */
+	TreeMap<DriveTrain, TextLayout> getDriveTrains() {
+		return driveTrains;
+	}
+
+	/**
+	 * @return Returns the unitSystem.
+	 */
+	UnitSystem getUnitSystem() {
+		return unitSystem;
+	}
+
+	/**
+	 * @return Returns the zoomFactor.
+	 */
+	double getZoomFactor() {
+		return zoomFactor;
+	}
+
+	public void setZoomFactor(double zoomFactor) {
+		this.zoomFactor = zoomFactor;
+		sizeChanged();
+		repaint();
+	}
+	
+	/**
+	 * @return Returns the SPACING.
+	 */
+	int getSpacing() {
+		return SPACING;
+	}
+
+	public int getTopMargin() {
+		return TOP_MARGIN;
+	}
+
+	public int getGearViewportWidth() {
+		return getWidth() - getNameViewportWidth();
+	}
+
+	public int getNameViewportWidth() {
+		return maxNameWidth + 2 * LEFT_MARGIN;
+	}
+	
+	public int map(double value) {
+		double fact = (getBounds().getWidth() - getNameViewportWidth() - LEFT_MARGIN) / getUnitSystem().getMaxDevelopment();
+		return (int)(value * fact * zoomFactor);
+	}
+
+	int getRulerViewHeight() {
+		return 40;
+	}
+	
+	int getViewWidth() {
+		return map(unitSystem.getMaxDevelopment());
+	}
+	
+	int getViewHeight() {
+		return TOP_MARGIN + SPACING * (1+driveTrains.size());
+	}
+	
+	double getTickStep() {
+		for(int n=SCALE_STEPS.length-1; n>=0; n--) {
+			int step = map(SCALE_STEPS[n]);
+			if(step > MIN_TICK_SPACING) {
+				return SCALE_STEPS[n];
+			}
+		}
+		return 1;
+	}
+
+	public void sizeChanged() {
+		getViewport().getView().setPreferredSize(new Dimension(getViewWidth(), getViewHeight()));
+		getColumnHeader().getView().setPreferredSize(new Dimension(getViewWidth(), getRulerViewHeight()));
+		((JComponent)getViewport().getView()).revalidate();
+		((JComponent)getColumnHeader().getView()).revalidate();
+	}
 
 }

@@ -222,7 +222,4 @@ class ImperialUnitSystem implements UnitSystem {
 		return (otherValue / PI) / 0.0254;
 	}
 
-	public double getDevelopmentSteps() {
-		return 10;
-	}
 }
