@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Created-By: 1.5.0_01 (Sun Microsystems Inc.)
 Name: GearCalcUtility
 Specification-Title: GearCalcUtility
-Specification-Version: 2.0.0
+Specification-Version: 2.1.0
 Specification-Vendor: Mirko Klemm
 Implementation-Title: gcu 
-Implementation-Version: 2.0.0
+Implementation-Version: 2.1.0
 Implementation-Vendor: Mirko Klemm
 Main-Class: de.mutantenzoo.gcu.ui.Main

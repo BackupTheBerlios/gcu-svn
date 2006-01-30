@@ -187,9 +187,9 @@ public class DriveTrain implements Serializable, Comparable<DriveTrain> {
 		sprockets.setUnitSystem(unitSystem);
 		cadence.setUnit(unitSystem.getCadenceUnit());
 		cadence.setFormat(unitSystem.getCadenceFormat());
-		maxOKDragAngle.setUnit("°");
+		maxOKDragAngle.setUnit("\u00B0");
 		maxOKDragAngle.setFormat(unitSystem.getPartPitchFormat());
-		maxGoodDragAngle.setUnit("°");
+		maxGoodDragAngle.setUnit("\u00B0");
 		maxGoodDragAngle.setFormat(unitSystem.getPartPitchFormat());
 		unitSystemChanged  = true;
 	}

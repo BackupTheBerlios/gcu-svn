@@ -23,21 +23,21 @@
  */
 package de.mutantenzoo.gcu.ui;
 
-import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableCellRenderer;
 
 import de.mutantenzoo.gcu.model.PartSet;
 import de.mutantenzoo.raf.ContentAdapter;
@@ -59,31 +59,42 @@ public class PartSetTranslationInput extends JScrollPane implements ContentEvent
 	private JTable partTable;
 	private PartTableModel tableModel = new PartTableModel();
 	
-	public PartSetTranslationInput(PartSet model, String title) {
+	public PartSetTranslationInput(PartSet partSet, String title) {
 		super();
-		this.model = model;
+		this.model = partSet;
 		setBorder(BorderFactory.createTitledBorder(title));
 		
 		partTable = new JTable(tableModel);
-		partTable.setDefaultRenderer(Icon.class, new IconRenderer());
 		partTable.setRowSelectionAllowed(false);
 		partTable.getColumnModel().getColumn(0).setPreferredWidth(removeIcon.getIconWidth());
 		partTable.getColumnModel().getColumn(1).setPreferredWidth(removeIcon.getIconWidth()+8);
 		partTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		partTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-
-			public void valueChanged(ListSelectionEvent e) {
-				if(!e.getValueIsAdjusting()
-					&& partTable.getSelectedRow() >= 0
-					&& partTable.getSelectedColumn() == 0
-					&& partTable.getSelectedRow() < getModel().size()) {
-					removePart(partTable.getSelectedRow());
-				}
-			}
-		
-		});
 		partTable.setPreferredScrollableViewportSize(new Dimension(100, (model.size()+1)*partTable.getRowHeight()));
 		setViewportView(partTable);
+		partTable.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				Point p = e.getPoint();
+				int row = partTable.rowAtPoint(p);
+				if(partTable.columnAtPoint(p) == 0 &&
+						row >= 0 &&
+						row < model.size()) {
+					removePart(row);
+				}
+			}
+			
+		});
+		partTable.addKeyListener(new KeyAdapter(){
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(partTable.getSelectedColumn() == 0
+						&& partTable.getSelectedRow() >= 0
+						&& partTable.getSelectedRow() < model.size() &&
+						e.getKeyCode() == e.VK_ENTER) {
+					removePart(partTable.getSelectedRow());
+				}
+			}			
+		});
 		update();
 	}
 
@@ -134,6 +145,7 @@ public class PartSetTranslationInput extends JScrollPane implements ContentEvent
 			return model.size()+1;
 		}
 
+		@SuppressWarnings("serial")
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			if(columnIndex == 2) {
 				if(rowIndex < model.size()) {
@@ -216,22 +228,6 @@ public class PartSetTranslationInput extends JScrollPane implements ContentEvent
 		
 	}
 	
-	private class IconRenderer implements TableCellRenderer {
-
-		private JLabel label = null;
-		
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-			Icon icon = (Icon)value;
-			if(label == null) {
-				label = new JLabel(icon);
-			} else {
-				label.setIcon(icon);
-			}
-			return label;
-		}
-		
-	}
-
 	public void addContentChangeListener(ContentChangeListener contentChangeListener) {
 		contentAdapter.addContentChangeListener(contentChangeListener);
 	}

@@ -26,16 +26,18 @@
 package de.mutantenzoo.gcu.ui;
 
 import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
 
 import de.mutantenzoo.gcu.model.DriveTrain;
 import de.mutantenzoo.gcu.model.DriveTrainStyle;
+import de.mutantenzoo.raf.ContentChangeListener;
 import de.mutantenzoo.raf.ContentPanel;
 
 /**
  * @author MKlemm
  *
  */
-public class ZoomInput extends ContentPanel {
+public class ZoomInput extends ContentPanel implements ContentChangeListener {
 	
 	/**
 	 * Generated SUID
@@ -142,6 +144,15 @@ public class ZoomInput extends ContentPanel {
 	 */
 	public void setStyle(DriveTrainStyle style) {
 		this.style = style;
+	}
+
+	public void contentChanged(ChangeEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void styleChanged(ChangeEvent e) {
+		slider.setValue((int)(style.getZoomFactor() * 100.0));
 	}
 
 }

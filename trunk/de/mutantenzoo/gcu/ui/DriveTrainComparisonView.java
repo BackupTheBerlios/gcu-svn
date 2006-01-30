@@ -25,6 +25,7 @@
  */
 package de.mutantenzoo.gcu.ui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -49,12 +50,12 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
-import javax.swing.filechooser.FileFilter;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import de.mutantenzoo.gcu.io.DriveTrainCSVWriter;
 import de.mutantenzoo.gcu.io.DriveTrainEncoder;
+import de.mutantenzoo.gcu.io.DriveTrainHTMLWriter;
 import de.mutantenzoo.gcu.io.DriveTrainPNGWriter;
 import de.mutantenzoo.gcu.model.ChainlineStatus;
 import de.mutantenzoo.gcu.model.DriveTrain;
@@ -169,25 +170,13 @@ public class DriveTrainComparisonView extends JScrollPane implements Printable, 
 
 	public void export() {
 		JFileChooser fileChooser = new JFileChooser();
-		FileFilter pngFilter = Filters.PNG;
-		FileFilter csvFilter = Filters.CSV;
 		fileChooser.setFileFilter(null);
-		fileChooser.addChoosableFileFilter(pngFilter);
-		fileChooser.addChoosableFileFilter(csvFilter);
-
+		fileChooser.addChoosableFileFilter(SuffixFileFilter.PNG);
+		fileChooser.addChoosableFileFilter(SuffixFileFilter.CSV);
+		fileChooser.addChoosableFileFilter(SuffixFileFilter.HTML);
 		int retVal = fileChooser.showSaveDialog(this);
 		if (retVal == JFileChooser.APPROVE_OPTION) {
-			File selectedFile = fileChooser.getSelectedFile();
-			boolean pngSelected = fileChooser.getFileFilter() == pngFilter;
-			if(pngSelected) {
-				if (!selectedFile.getName().toLowerCase().endsWith(".png")) { //$NON-NLS-1$
-					selectedFile = new File(selectedFile.getAbsolutePath() + ".png"); //$NON-NLS-1$
-				}
-			} else {
-				if (!selectedFile.getName().toLowerCase().endsWith(".csv")) { //$NON-NLS-1$
-					selectedFile = new File(selectedFile.getAbsolutePath() + ".csv"); //$NON-NLS-1$
-				}
-			}
+			File selectedFile = ((SuffixFileFilter)fileChooser.getFileFilter()).makeAcceptable(fileChooser.getSelectedFile());
 			if (selectedFile.exists()) {
 				if (selectedFile.canWrite()) {
 					int chosen = JOptionPane
@@ -207,13 +196,15 @@ public class DriveTrainComparisonView extends JScrollPane implements Printable, 
 			}
 			PrintStream ps;
 			try {
-				ps = new PrintStream(new FileOutputStream(selectedFile));
-				if(pngSelected) {
-					DriveTrainPNGWriter.writePNG(ps, this, 1024, (TOP_MARGIN + SPACING * (1+driveTrains.size())));
-				} else {
+				if(fileChooser.getFileFilter() == SuffixFileFilter.PNG) {
+					exportPNG(selectedFile);
+				} else if(fileChooser.getFileFilter() == SuffixFileFilter.CSV){
+					ps = new PrintStream(new FileOutputStream(selectedFile));
 					DriveTrainCSVWriter.writeCSV(ps, driveTrains.keySet());
+					ps.close();
+				} else {
+					DriveTrainHTMLWriter.writeComparisonHTML(selectedFile, this);
 				}
-				ps.close();
 			} catch (IOException e) {
 				JOptionPane.showMessageDialog(this, Messages.format(
 						"Main.15", e.getLocalizedMessage()), //$NON-NLS-1$ 
@@ -223,6 +214,28 @@ public class DriveTrainComparisonView extends JScrollPane implements Printable, 
 		}
 
 
+	}
+	
+	private void exportPNG(File selectedFile) throws IOException {
+		DriveTrainPNGWriter pngWriter = new DriveTrainPNGWriter(getRowHeader().getViewSize().width + getViewport().getViewSize().width, getColumnHeader().getViewSize().height + getViewport().getViewSize().height);
+		pngWriter.setBackgroundColor(Color.WHITE);
+		paintFull(pngWriter.getGraphics());
+		FileOutputStream out = new FileOutputStream(selectedFile);
+		pngWriter.save(out);
+		out.close();
+	}
+	
+	private void paintFull(Graphics2D g) {
+		AffineTransform origTransform = g.getTransform();
+		g.translate(getRowHeader().getViewSize().getWidth(), 0);
+		getColumnHeader().getView().paint(g);
+		g.setTransform(origTransform);
+		g.translate(0, getColumnHeader().getViewSize().getHeight());
+		getRowHeader().getView().paint(g);
+		g.setTransform(origTransform);
+		g.translate(getRowHeader().getViewSize().getWidth(), getColumnHeader().getViewSize().getHeight());
+		getViewport().getView().paint(g);
+		g.setTransform(origTransform);
 	}
 	
 	public void print() {
@@ -250,9 +263,10 @@ public class DriveTrainComparisonView extends JScrollPane implements Printable, 
 			g.translate(pageFormat.getImageableX(), pageFormat.getImageableY()+40);
 			Dimension origSize = getSize();
 			setSize((int)pageFormat.getImageableWidth(), (int)pageFormat.getImageableHeight());
-			paintComponent(g);
+			paintFull(g);
 			setSize(origSize);
 			g.setTransform(origTransform);
+			g.drawRect((int)pageFormat.getImageableX()+1, (int)pageFormat.getImageableY()+1, (int)pageFormat.getImageableWidth()-1, (int)pageFormat.getImageableHeight()-1);
 			return Printable.PAGE_EXISTS;
 		} else {
 			return Printable.NO_SUCH_PAGE;
@@ -281,14 +295,11 @@ public class DriveTrainComparisonView extends JScrollPane implements Printable, 
 
 	public boolean saveAs() {
 		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setFileFilter(Filters.XML);
+		fileChooser.setFileFilter(SuffixFileFilter.XML);
 		int retVal = fileChooser.showSaveDialog(this);
 		if (retVal == JFileChooser.APPROVE_OPTION) {
-			File selectedFile = fileChooser.getSelectedFile();
-			if (!selectedFile.getName().toLowerCase().endsWith(".xml")
-					&& !selectedFile.getName().toLowerCase().endsWith(".txt") ) { //$NON-NLS-1$
-				selectedFile = new File(selectedFile.getAbsolutePath() + ".txt"); //$NON-NLS-1$
-			}
+			File selectedFile = ((SuffixFileFilter)fileChooser.getFileFilter()).makeAcceptable(fileChooser.getSelectedFile());
+			
 			if (selectedFile.exists()) {
 				if (selectedFile.canWrite()) {
 					int chosen = JOptionPane

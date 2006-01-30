@@ -54,7 +54,6 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.event.ChangeEvent;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.text.DefaultEditorKit;
 
 import de.mutantenzoo.gcu.io.DriveTrainEncoder;
@@ -96,7 +95,7 @@ public class Main implements ContentChangeListener {
 		JDialog.setDefaultLookAndFeelDecorated(true);
 		mainFrame = new JFrame(Messages.getString("Main.2")); //$NON-NLS-1$
 		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		mainFrame.addWindowListener(new WindowAdapter(){@Override public void windowClosing(WindowEvent e) {exit();}});
+		mainFrame.addWindowListener(new WindowAdapter(){@Override public void windowClosing(WindowEvent e) {exit(); }});
 		mainFrame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/bicycle.png")));		actions = new ActionContainer();
 		mainFrame.setJMenuBar(actions.getMenuBar());
 		mainPanel = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -317,11 +316,10 @@ public class Main implements ContentChangeListener {
 	private void open() {
 		JFileChooser fileChooser = new JFileChooser();
 		/* binary support removed */
-		//FileFilter binaryFormatFilter = Filters.BINARY;
-		FileFilter xmlFormatFilter = Filters.XML;
+		//FileFilter binaryFormatFilter = SuffixFileFilter.BINARY;
 		fileChooser.setMultiSelectionEnabled(true);
 		//fileChooser.addChoosableFileFilter(binaryFormatFilter);
-		fileChooser.setFileFilter(xmlFormatFilter);
+		fileChooser.setFileFilter(SuffixFileFilter.XML);
 		int retVal = fileChooser.showOpenDialog(mainFrame.getRootPane());
 		if (retVal == JFileChooser.APPROVE_OPTION) {
 			File[] selectedFiles = fileChooser.getSelectedFiles();
@@ -437,7 +435,6 @@ public class Main implements ContentChangeListener {
 	}
 	
 	void exit() {
-		// GearBoxWriter.print(model);
 		if (saveModified()) {
 			mainFrame.dispose();
 			System.exit(0);
@@ -445,7 +442,7 @@ public class Main implements ContentChangeListener {
 	}
 
 	private boolean saveModified() {
-		for(int n=1; n<mainPanel.getTabCount(); n++) {
+		for(int n=0; n<mainPanel.getTabCount(); n++) {
 			Component component = mainPanel.getComponentAt(n);
 			if(component instanceof DriveTrainPanel &&
 			    !((DriveTrainPanel)component).saveModified() ) {

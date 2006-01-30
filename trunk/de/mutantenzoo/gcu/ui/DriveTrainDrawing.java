@@ -378,6 +378,7 @@ public class DriveTrainDrawing extends ContentComponent {
 
 		public void mouseWheelMoved(MouseWheelEvent e) {
 			style.setZoomFactor( style.getZoomFactor() + e.getWheelRotation() * 0.1);
+			fireStyleChanged();
 			repaint();
 		}		
 

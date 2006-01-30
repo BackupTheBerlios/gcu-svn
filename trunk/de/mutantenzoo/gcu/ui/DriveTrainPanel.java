@@ -53,7 +53,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
-import javax.swing.filechooser.FileFilter;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
@@ -67,7 +66,6 @@ import de.mutantenzoo.gcu.model.DriveTrainStyle;
 import de.mutantenzoo.gcu.units.UnitSystem;
 import de.mutantenzoo.raf.ContentChangeListener;
 import de.mutantenzoo.raf.ContentPanel;
-import de.mutantenzoo.raf.FileName;
 
 /**
  * @author MKlemm
@@ -186,6 +184,7 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 		translationInput.add(generalTranslationInput, gbc);
 
 		driveTrainDrawing.addContentChangeListener(this);
+		driveTrainDrawing.addContentChangeListener(zoomInput);
 		driveTrainOutput.addContentChangeListener(this);
 
 
@@ -280,10 +279,9 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 	 */
 	public boolean saveAs() {
 		JFileChooser fileChooser = new JFileChooser();
-		//FileFilter binaryFormatFilter = Filters.BINARY;
-		FileFilter xmlFormatFilter = Filters.XML;
+		//FileFilter binaryFormatFilter = SuffixFileFilter.BINARY;
 		//fileChooser.addChoosableFileFilter(binaryFormatFilter);
-		fileChooser.setFileFilter(xmlFormatFilter);
+		fileChooser.setFileFilter(SuffixFileFilter.XML);
 		if(model.getFile() != null) {
 			fileChooser.setSelectedFile(model.getFile());
 		} else {
@@ -291,15 +289,8 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 		}
 		int retVal = fileChooser.showSaveDialog(this);
 		if (retVal == JFileChooser.APPROVE_OPTION) {
-			//boolean binaryFormatSelected = fileChooser.getFileFilter().getDescription().equals(binaryFormatFilter.getDescription()); 
 			File selectedFile = fileChooser.getSelectedFile();
-			/* if(binaryFormatSelected) {
-				if (!selectedFile.getName().toLowerCase().endsWith(".rrp")) { //$NON-NLS-1$
-					selectedFile = new File(selectedFile.getAbsolutePath() + ".rrp"); //$NON-NLS-1$
-				}
-			} else { */
-				selectedFile = FileName.extend(selectedFile, ".txt");
-			//}
+			selectedFile = ((SuffixFileFilter)fileChooser.getFileFilter()).makeAcceptable(selectedFile);
 			model.setFile(selectedFile);
 			model.setName(null);
 			if (selectedFile.exists()) {
@@ -441,21 +432,14 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 	
 	public void export() {
 		JFileChooser fileChooser = new JFileChooser();
-		FileFilter htmlFilter = Filters.HTML;
-		FileFilter csvFilter = Filters.CSV;
 		fileChooser.setFileFilter(null);
-		fileChooser.addChoosableFileFilter(htmlFilter);
-		fileChooser.addChoosableFileFilter(csvFilter);
+		fileChooser.addChoosableFileFilter(SuffixFileFilter.HTML);
+		fileChooser.addChoosableFileFilter(SuffixFileFilter.CSV);
 
 		int retVal = fileChooser.showSaveDialog(this);
 		if (retVal == JFileChooser.APPROVE_OPTION) {
 			File selectedFile = fileChooser.getSelectedFile();
-			boolean htmlSelected = fileChooser.getFileFilter() == htmlFilter;
-			if(htmlSelected) {
-				selectedFile = FileName.extend(selectedFile, ".html");
-			} else {
-				selectedFile = FileName.extend(selectedFile, ".csv");
-			}
+			selectedFile = ((SuffixFileFilter)fileChooser.getFileFilter()).makeAcceptable(selectedFile);
 			if (selectedFile.exists()) {
 				if (selectedFile.canWrite()) {
 					int chosen = JOptionPane
@@ -476,7 +460,7 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 			PrintStream ps;
 			try {
 				ps = new PrintStream(new FileOutputStream(selectedFile));
-				if(htmlSelected) {
+				if((fileChooser.getFileFilter() == SuffixFileFilter.HTML)) {
 					String imageURL = selectedFile.getAbsolutePath().substring(0, selectedFile.getAbsolutePath().length()-4)+"png";
 					File imageFile = new File(imageURL);
 					FileOutputStream fos = new FileOutputStream(imageFile);

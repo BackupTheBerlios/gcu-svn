@@ -25,6 +25,7 @@
  */
 package de.mutantenzoo.gcu.io;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -40,6 +41,27 @@ import javax.swing.JComponent;
  */
 public class DriveTrainPNGWriter {
 
+	private BufferedImage image;
+	private Graphics2D g;
+	
+	public DriveTrainPNGWriter(int width, int height) {
+		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		g = image.createGraphics();
+	}
+	
+	public void setBackgroundColor(Color color) {
+		g.setBackground(color);
+		g.clearRect(0, 0, image.getWidth(), image.getHeight());
+	}
+	
+	public Graphics2D getGraphics() {
+		return g;
+	}
+	
+	public void save(OutputStream out) throws IOException {
+		ImageIO.write(image, "png", out);
+	}
+	
 	public static void writePNG(OutputStream out, JComponent view, int width, int height) throws IOException {
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = image.createGraphics();
