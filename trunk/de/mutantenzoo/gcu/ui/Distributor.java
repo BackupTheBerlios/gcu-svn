@@ -14,20 +14,8 @@ public class Distributor {
 		slots = new Item[values.size()];
 		for(Item value : values) {
 			add(value);
-			//System.out.println(value.label+": "+value.exactValue);
 		}
 	}
-/*	
-	public void add(int exactValue, String label) {
-		int slot = exactValue / minStep;
-		if(slots[slot] != null) {
-			shl(slot);
-			slots[slot] = new Item(label, exactValue, true);
-		} else {
-			slots[slot] = new Item(label, exactValue, false);
-		}
-	}
-*/
 	
 	private void add(Item item) {
 		slots[currentIndex] = item;

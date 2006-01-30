@@ -25,12 +25,13 @@ package de.mutantenzoo.gcu.ui;
 
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
+import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
 public class Messages {
 	private static final String BUNDLE_NAME = "de.mutantenzoo.gcu.ui.messages"; //$NON-NLS-1$
 
-	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
+	private static final PropertyResourceBundle RESOURCE_BUNDLE = (PropertyResourceBundle)ResourceBundle
 			.getBundle(BUNDLE_NAME);
 
 	private Messages() {
