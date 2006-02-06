@@ -38,6 +38,7 @@ import de.mutantenzoo.raf.MeasureInput;
 
 
 /**
+ * Input panel for general, translation-centric data
  * @author MKlemm
  *
  */

@@ -38,15 +38,19 @@ import de.mutantenzoo.raf.MeasureInput;
 
 
 /**
+ * Input Component for 
+ * general, geometry-related 
+ * data.
  * @author MKlemm
  *
  */
 public class GeneralGeometryInput extends ContentPanel implements ContentChangeListener {
 	
 	/**
-	 * 
+	 * Generated SUID
 	 */
 	private static final long serialVersionUID = 1L;
+	
 	private MeasureInput rearCenterInput;
 	private MeasureInput maxOKDragAngleInput;
 	private MeasureInput maxGoodDragAngleInput;
@@ -89,7 +93,9 @@ public class GeneralGeometryInput extends ContentPanel implements ContentChangeL
 		update();
 	}
 
-		
+	/**
+	 * Handles the conentChanged-Event
+	 */	
 	public void contentChanged(ChangeEvent e) {
 		fireContentChanged();
 	}
@@ -111,13 +117,20 @@ public class GeneralGeometryInput extends ContentPanel implements ContentChangeL
 		maxGoodDragAngleInput.setModel(model.getMaxGoodDragAngle());
 	}
 	
+	/**
+	 * Notfies this view of
+	 * a to-down update
+	 * of the GUI.
+	 */
 	public void update() {
 		rearCenterInput.update();
 		maxOKDragAngleInput.update();
 		maxGoodDragAngleInput.update();
 	}
 
-
+	/**
+	 * Handles the styleChanged-Event
+	 */
 	public void styleChanged(ChangeEvent e) {
 		fireStyleChanged();		
 	}

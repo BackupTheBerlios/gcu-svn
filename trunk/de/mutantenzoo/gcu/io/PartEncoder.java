@@ -30,10 +30,20 @@ import org.w3c.dom.Element;
 import de.mutantenzoo.gcu.model.Part;
 
 /**
+ * Utility class for XML serialization.
+ * Serializes a "Part" (Part) object to 
+ * an XML element
  * @author MKlemm
  *
  */
 public class PartEncoder {
+	
+	/**
+	 * Serializes a "Part" (Part) object to 
+	 * an XML element
+	 * @param parent The parent element to add the model to.
+	 * @param model The Part object to serialize.
+	 */
 	public static void encode(Element parent, Part model) {
 		Element element = parent.getOwnerDocument().createElement("Part");
 		element.setAttribute("size", Integer.toString(model.getSize()));

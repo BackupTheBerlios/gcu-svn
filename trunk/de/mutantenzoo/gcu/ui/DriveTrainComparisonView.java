@@ -59,20 +59,21 @@ import de.mutantenzoo.gcu.io.DriveTrainHTMLWriter;
 import de.mutantenzoo.gcu.io.DriveTrainPNGWriter;
 import de.mutantenzoo.gcu.model.ChainlineStatus;
 import de.mutantenzoo.gcu.model.DriveTrain;
-import de.mutantenzoo.gcu.ui.Distributor.Mapper;
 import de.mutantenzoo.gcu.units.UnitSystem;
 
 /**
+ * Comparison View Component
  * @author MKlemm
  *
  */
-public class DriveTrainComparisonView extends JScrollPane implements Printable, Zoomable, GearView, Mapper {
+public class DriveTrainComparisonView extends JScrollPane implements Printable, Zoomable, GearView {
 
 
 	/**
 	 * Generated SUID
 	 */
 	private static final long serialVersionUID = -1444852719712673897L;
+	
 	private static final int LEFT_MARGIN = 5;
 	private static final int TOP_MARGIN = 5;
 	private static final int SPACING = 48;
@@ -81,19 +82,19 @@ public class DriveTrainComparisonView extends JScrollPane implements Printable, 
 	
 	private static final FontRenderContext frc = new FontRenderContext(null, true, true);
 	
-	private Dimension preferredSize = new Dimension(600,400);
 	private UnitSystem unitSystem = UnitSystem.METRIC;
 	private TreeMap<DriveTrain, TextLayout> driveTrains = new TreeMap<DriveTrain,TextLayout>();
-	private ChainlineStatus chainlineStatus = ChainlineStatus.ALL;
+	private ChainlineStatus chainlineStatus = ChainlineStatus.ANY;
 	
 	private transient int maxNameWidth = 0;
 	private double zoomFactor = 1.0;
 	
 	/**
-	 * Default Constructor
+	 * Default Constructor, pulls up all child components
 	 */
 	public DriveTrainComparisonView() {
 		super();
+		setPreferredSize(new Dimension(600,400));
 		setFont(new Font("Verdana", Font.PLAIN, 11));
 		setViewportView(new GearChart(this));
 		getViewport().getView().setFont(getFont());
@@ -124,8 +125,9 @@ public class DriveTrainComparisonView extends JScrollPane implements Printable, 
 	}
 	
 	/**
-	 * 
-	 * @param model
+	 * Adds a DriveTrain to the list of 
+	 * DriveTrains that are visible in this view
+	 * @param model A DriveTrain to add.
 	 */
 	public void addModel(DriveTrain model) {
 		TextLayout tl = new TextLayout(model.getName(), getFont(), frc);
@@ -136,6 +138,11 @@ public class DriveTrainComparisonView extends JScrollPane implements Printable, 
 		driveTrains.put(model, tl);		
 	}
 	
+	/**
+	 * Removes a DriveTrain from
+	 * this view.
+	 * @param model The DriveTrain to remove
+	 */
 	public void removeModel(DriveTrain model) {
 		driveTrains.remove(model);
 		maxNameWidth = 0;
@@ -146,28 +153,21 @@ public class DriveTrainComparisonView extends JScrollPane implements Printable, 
 		}
 	}
 	
+	/**
+	 * Removes all DriveTrains from
+	 * this view
+	 */
 	public void removeAllModels() {
 		driveTrains.clear();
 		maxNameWidth = 0;
 	}
 
-
 	/**
-	 * @return Returns the preferredSize.
+	 * Handles the "Export" user action.
+	 * Prompts the user for a file
+	 * name and type and then exports
+	 * this view to the specified file.
 	 */
-	@Override
-	public Dimension getPreferredSize() {
-		return preferredSize;
-	}
-
-	/**
-	 * @param preferredSize The preferredSize to set.
-	 */
-	@Override
-	public void setPreferredSize(Dimension preferredSize) {
-		this.preferredSize = preferredSize;
-	}
-
 	public void export() {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setFileFilter(null);
@@ -216,6 +216,12 @@ public class DriveTrainComparisonView extends JScrollPane implements Printable, 
 
 	}
 	
+	/**
+	 * Utility method to export
+	 * this view to a PNG graphics file
+	 * @param selectedFile The file to export to.
+	 * @throws IOException If file operations fail.
+	 */
 	private void exportPNG(File selectedFile) throws IOException {
 		DriveTrainPNGWriter pngWriter = new DriveTrainPNGWriter(getRowHeader().getViewSize().width + getViewport().getViewSize().width, getColumnHeader().getViewSize().height + getViewport().getViewSize().height);
 		pngWriter.setBackgroundColor(Color.WHITE);
@@ -225,6 +231,12 @@ public class DriveTrainComparisonView extends JScrollPane implements Printable, 
 		out.close();
 	}
 	
+	/**
+	 * Paints this component as in paint(), but
+	 * with all of the viewport visible and no
+	 * zoom slider control.
+	 * @param g The graphics context to draw to.
+	 */
 	private void paintFull(Graphics2D g) {
 		AffineTransform origTransform = g.getTransform();
 		g.translate(getRowHeader().getViewSize().getWidth(), 0);
@@ -238,6 +250,10 @@ public class DriveTrainComparisonView extends JScrollPane implements Printable, 
 		g.setTransform(origTransform);
 	}
 	
+	/**
+	 * Shows the user a printing dialog and
+	 * prints this view.
+	 */
 	public void print() {
 		PrinterJob pj = PrinterJob.getPrinterJob();
 		pj.setPrintable(this);
@@ -254,6 +270,10 @@ public class DriveTrainComparisonView extends JScrollPane implements Printable, 
 		}
 	}
 
+	/*
+	 *  (non-Javadoc)
+	 * @see java.awt.print.Printable#print(java.awt.Graphics, java.awt.print.PageFormat, int)
+	 */
 	public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
 		if(pageIndex == 0) {
 			Graphics2D g = (Graphics2D)graphics;
@@ -273,26 +293,42 @@ public class DriveTrainComparisonView extends JScrollPane implements Printable, 
 		}
 	}
 
+	/**
+	 * Handles the "View All Gears" user action
+	 */
 	public void viewAllGears() {
-		chainlineStatus = ChainlineStatus.ALL;
+		chainlineStatus = ChainlineStatus.ANY;
 		repaint();
 	}
 
+	/**
+	 * Handles the "View Usable Gears" user action
+	 */
 	public void viewOKGears() {
 		chainlineStatus = ChainlineStatus.USABLE;
 		repaint();
 	}
 
+	/**
+	 * Handles the "View Good Gears" user action.
+	 */
 	public void viewGoodGears() {
 		chainlineStatus = ChainlineStatus.GOOD;
 		repaint();
 	}
 
+	/**
+	 * Sets the unit system
+	 * @param unitSystem The unit system to set.
+	 */
 	public void setUnitSystem(UnitSystem unitSystem) {
 		this.unitSystem = unitSystem;
 		repaint();
 	}
 
+	/**
+	 * Handles the "Save As" user action
+	 */
 	public boolean saveAs() {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setFileFilter(SuffixFileFilter.XML);
@@ -322,6 +358,7 @@ public class DriveTrainComparisonView extends JScrollPane implements Printable, 
 			return false;
 		}
 	}
+	
 	/**
 	 * Writes data out into file specified in model
 	 */
@@ -419,18 +456,35 @@ public class DriveTrainComparisonView extends JScrollPane implements Printable, 
 		return (int)(value * fact * zoomFactor);
 	}
 
+	/**
+	 * 
+	 * @return The height of the ruler (scale)
+	 */
 	int getRulerViewHeight() {
 		return 40;
 	}
 	
+	/**
+	 * 
+	 * @return The total width of the main gear view
+	 */
 	int getViewWidth() {
 		return map(unitSystem.getMaxDevelopment());
 	}
 	
+	/**
+	 * @return The total height of the main gear view
+	 */
 	int getViewHeight() {
 		return TOP_MARGIN + SPACING * (1+driveTrains.size());
 	}
 	
+	/**
+	 * Gets the distance between the ticks on the ruler, this
+	 * depends on the overall size of the component and the zoom
+	 * factor.
+	 * @return The distance between the ticks on the ruler
+	 */
 	double getTickStep() {
 		for(int n=SCALE_STEPS.length-1; n>=0; n--) {
 			int step = map(SCALE_STEPS[n]);
@@ -441,7 +495,12 @@ public class DriveTrainComparisonView extends JScrollPane implements Printable, 
 		return 1;
 	}
 
-	public void sizeChanged() {
+	/**
+	 * Performs the steps 
+	 * to rearrange the GUI when the size
+	 * of this view has changed.
+	 */
+	private void sizeChanged() {
 		getViewport().getView().setPreferredSize(new Dimension(getViewWidth(), getViewHeight()));
 		getColumnHeader().getView().setPreferredSize(new Dimension(getViewWidth(), getRulerViewHeight()));
 		((JComponent)getViewport().getView()).revalidate();

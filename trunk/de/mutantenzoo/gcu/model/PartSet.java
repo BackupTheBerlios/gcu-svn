@@ -30,10 +30,12 @@ import de.mutantenzoo.gcu.units.UnitSystem;
 import de.mutantenzoo.raf.Measure;
 
 /**
+ * Represents a fron or rear sprocket stack
  * @author MKlemm
  *
  */
 public class PartSet extends ArrayList<Part> {
+	
 	/**
 	 * Generated SUID
 	 */
@@ -47,6 +49,8 @@ public class PartSet extends ArrayList<Part> {
 	Part largest = null;
 	
 	/**
+	 * Constructor, initializes a PartSet with
+	 * a specific initial capacity
 	 * @param initialCapacity
 	 */
 	public PartSet(int initialCapacity) {
@@ -55,7 +59,7 @@ public class PartSet extends ArrayList<Part> {
 	}
 
 	/**
-	 * 
+	 * Default constructor
 	 */
 	public PartSet() {
 		super();
@@ -63,18 +67,39 @@ public class PartSet extends ArrayList<Part> {
 	}
 
 	/**
-	 * @param c
+	 * Initializes a PartSet from a
+	 * collection of Parts
+	 * @param c A collection of Parts
 	 */
 	public PartSet(Collection<? extends Part> c) {
 		super(c);
 	}
 	
+	/**
+	 * Creates a new Part with 0 teeth 
+	 * in this PartSet and returns it
+	 * @return
+	 */
+	public Part createPart() {
+		return createPart(0);
+	}
+
+
+	/**
+	 * Creates a new Part with the specified
+	 * number of teeth in this PartSet and returns it
+	 * @param size The tooth count of the part
+	 * @return The newly created Part
+	 */
 	public Part createPart(int size) {
 		Part part = new Part(this, size);
 		add(part);
 		return part;
 	}
 	
+	/*
+	 * @see java.util.ArrayList#add(java.lang.Object)
+	 */
 	@Override
 	public boolean add(Part part) {
 		boolean result = super.add(part);
@@ -106,6 +131,12 @@ public class PartSet extends ArrayList<Part> {
 		return result;
 	}
 
+	/**
+	 * Causes the chainlines of all parts to be
+	 * updated, must be called when the chainline
+	 * or pitch of this partSet has been updated.
+	 * 
+	 */
 	public void updateChainlines() {
 		double outerChainline = getOuterChainline();
 		for(int n=0; n < size(); n++) {
@@ -114,22 +145,31 @@ public class PartSet extends ArrayList<Part> {
 		}
 	}
 
+	/**
+	 * 
+	 * @return The stack thickness
+	 */
 	public double getStackThickness() {
 		return partPitch.getValue() * (size()-1);
 	}
 	
+	/**
+	 * 
+	 * @return The chainline value of the outermost
+	 * sprocket.
+	 */
 	public double getOuterChainline() {
 		return chainline.getValue() + getStackThickness() / 2.0;
 	}
 
+	/**
+	 * 
+	 * @return The chanline of the innermost sprocket.
+	 */
 	public double getInnerChainline() {
 		return chainline.getValue() - getStackThickness() / 2.0;
 	}
 	
-	public Part createPart() {
-		return createPart(0);
-	}
-
 	/**
 	 * @return Returns the partPitch.
 	 */
@@ -167,6 +207,10 @@ public class PartSet extends ArrayList<Part> {
 		partPitch.setUnit(unitSystem.getPartPitchUnit());
 	}
 
+	/**
+	 * Gets the largest sprocket in this PartSet
+	 * @return The largest sprocket in this PartSet
+	 */
 	public Part getLargest() {
 		return largest;
 	}

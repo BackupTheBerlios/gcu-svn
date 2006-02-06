@@ -32,11 +32,20 @@ import de.mutantenzoo.gcu.model.Part;
 import de.mutantenzoo.gcu.model.PartSet;
 
 /**
+ * Utility class to serialize a PartSet object
+ * to an XML element.
  * @author MKlemm
  *
  */
 public class PartSetEncoder {
 	
+	/**
+	 * Serializes a PartSet object to an XML element
+	 * with a given name.
+	 * @param parent The parent element to add the PartSet to.
+	 * @param model The PartSet to serialize.
+	 * @param elementName The name of the new XML element.
+	 */
 	public static void encode(Element parent, PartSet model, String elementName) {
 		Element element = parent.getOwnerDocument().createElement(elementName);
 		element.setAttribute("chainline", Double.toString(model.getChainline().getValue()));
@@ -47,6 +56,12 @@ public class PartSetEncoder {
 		parent.appendChild(element);
 	}
 
+	/**
+	 * De-serializes a PartSet object from an XML element.
+	 * @param parent The element containing the parts.
+	 * @param model The PartSet to add the de-serialized objects to.
+	 * @param elementName The name of the XML elements to read.
+	 */
 	public static void decode(Element parent, PartSet model, String elementName) {
 		Element element = (Element)parent.getElementsByTagName(elementName).item(0);
 		model.getChainline().setValue(Double.parseDouble(element.getAttribute("chainline")));

@@ -47,6 +47,9 @@ import de.mutantenzoo.gcu.model.DriveTrain;
 import de.mutantenzoo.gcu.model.Gear;
 
 /**
+ * Draws the scrollable part of the 
+ * comparison view.
+ * Component of the @see de.mutantenzoo.gcu.ui.DriveTrainComparisonView
  * @author MKlemm
  *
  */
@@ -56,6 +59,7 @@ public class GearChart extends JComponent implements Scrollable {
 	 * Generated SUID
 	 */
 	private static final long serialVersionUID = -1444852719712673897L;
+	
 	private static final GeneralPath triangle = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
 	private static final AffineTransform ROTATE90_TRANSFORM = new AffineTransform(0,-1,1,0,0,0);
 	
@@ -64,7 +68,7 @@ public class GearChart extends JComponent implements Scrollable {
 	private int textSpacing;
 	
 	/**
-	 * Default Constructor
+	 * 
 	 */
 	public GearChart(DriveTrainComparisonView parent) {
 		super();
@@ -89,6 +93,10 @@ public class GearChart extends JComponent implements Scrollable {
 		drawDriveTrains(g);
 	}
 
+	/**
+	 * Draws the horizontal and vertical axes.
+	 * @param g Graphics context to draw to.
+	 */
 	private void drawAxes(Graphics2D g) {
 		Stroke origStroke = g.getStroke();
 		Color origColor = g.getColor();
@@ -103,7 +111,10 @@ public class GearChart extends JComponent implements Scrollable {
 		g.setColor(origColor);
 	}
 
-	
+	/**
+	 * Draws the gears of all drivetrains
+	 * @param g 
+	 */
 	private void drawDriveTrains(Graphics2D g) {
 		int y = -parent.getSpacing();
 		for(DriveTrain model : parent.getDriveTrains().keySet()) {
@@ -111,6 +122,12 @@ public class GearChart extends JComponent implements Scrollable {
 		}
 	}
 	
+	/**
+	 * Draws the gears of one drivetrain
+	 * @param g
+	 * @param y y-Position of the gears
+	 * @param model
+	 */
 	private void drawGears(Graphics2D g, int y, DriveTrain model) {
 		Line2D axis = new Line2D.Double(0, y, parent.map(parent.getUnitSystem().getMaxDevelopment()), y);
 		Stroke origStroke = g.getStroke();
@@ -123,7 +140,7 @@ public class GearChart extends JComponent implements Scrollable {
 		for(int n=0; n<model.getGearCount(); n++) {
 			Gear gear = model.getGear(n);
 			if(parent.getChainlineStatus().has(gear.getChainlineStatus())) {
-				set.add(new Distributor.Item(gear.getChainwheel().getSize()+":"+gear.getSprocket().getSize(), development(gear), false));
+				set.add(new Distributor.Item(gear.getChainwheel().getSize()+":"+gear.getSprocket().getSize(), development(gear)));
 				drawGear(g, y, gear);
 			}
 		}
@@ -134,6 +151,12 @@ public class GearChart extends JComponent implements Scrollable {
 		}
 	}
 
+	/**
+	 * Draws one gear of one drivetrain
+	 * @param g
+	 * @param y
+	 * @param gear
+	 */
 	private void drawGear(Graphics2D g, int y, Gear gear) {
 		g.setColor(GearRenderer.getColorFromChainlineStatus(gear.getChainlineStatus()));
 		int devel = development(gear);
@@ -147,6 +170,12 @@ public class GearChart extends JComponent implements Scrollable {
 		g.setTransform(origTransform);
 	}
 
+	/**
+	 * Draws the label of a gear
+	 * @param g
+	 * @param item
+	 * @param y
+	 */
 	private void drawGearLabel(Graphics2D g, Distributor.Item item, int y) {
 		AffineTransform origTransform = g.getTransform();
 		g.translate(item.exactValue, y+4);
@@ -157,6 +186,12 @@ public class GearChart extends JComponent implements Scrollable {
 		g.setTransform(origTransform);
 	}
 
+	/**
+	 * computes the development in screen coordinates dependent on
+	 * the unit system used.
+	 * @param gear
+	 * @return
+	 */
 	private int development(Gear gear) {
 		if(gear.getParent().getUnitSystem().equals(parent.getUnitSystem())) {
 			return parent.map(gear.getDevelopment().getValue());
@@ -165,64 +200,54 @@ public class GearChart extends JComponent implements Scrollable {
 		}
 	}
 
+	/**
+	 * Prepare transformation matrix of the
+	 * graphics context.
+	 * @param g
+	 */
 	private void prepareTransform(Graphics2D g) {
 		g.translate(0, parent.getTopMargin());
 	}
 	
-
+	/*
+	 *  (non-Javadoc)
+	 * @see javax.swing.Scrollable#getPreferredScrollableViewportSize()
+	 */
 	public Dimension getPreferredScrollableViewportSize() {
 		preferredScrollableViewportSize.height = getPreferredSize().height;
 		preferredScrollableViewportSize.width = parent.getGearViewportWidth();
 		return preferredScrollableViewportSize;
 	}
 
-	
+	/*
+	 *  (non-Javadoc)
+	 * @see javax.swing.Scrollable#getScrollableUnitIncrement(java.awt.Rectangle, int, int)
+	 */
 	public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
 		return 1;
 	}
 
+	/*
+	 *  (non-Javadoc)
+	 * @see javax.swing.Scrollable#getScrollableBlockIncrement(java.awt.Rectangle, int, int)
+	 */
 	public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
 		return parent.map(parent.getTickStep());
 	}
 
+	/*
+	 *  (non-Javadoc)
+	 * @see javax.swing.Scrollable#getScrollableTracksViewportWidth()
+	 */
 	public boolean getScrollableTracksViewportWidth() {
 		return false;
 	}
 
+	/*
+	 *  (non-Javadoc)
+	 * @see javax.swing.Scrollable#getScrollableTracksViewportHeight()
+	 */
 	public boolean getScrollableTracksViewportHeight() {
 		return true;
 	}
-	
-	
-	/**
-	 * @return Returns the preferredSize.
-	 */
-	/*
-	@Override
-	public Dimension getPreferredSize() {
-		PREFERRED_SIZE.width = getWidth();
-		PREFERRED_SIZE.height = getHeight();
-		return PREFERRED_SIZE;
-	}
-	
-	@Override
-	public Dimension getSize() {
-		return getPreferredSize();
-	}
-	
-	@Override
-	public int getWidth() {
-		return parent.getViewWidth();
-	}
-	
-	@Override
-	public int getHeight() {
-		return parent.getViewHeight();
-	}
-
-	@Override
-	public Rectangle getBounds() {
-		return new Rectangle(getLocation(), PREFERRED_SIZE);
-	}
-	*/
 }

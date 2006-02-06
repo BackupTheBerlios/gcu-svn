@@ -26,15 +26,17 @@ package de.mutantenzoo.gcu.model;
 import java.io.Serializable;
 
 /**
+ * Represents a front or rear sprocket.
  * @author MKlemm
  *
  */
 public class Part implements Serializable {
 	
+	
 	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	 * Generated SUID
+	 */	
+	private static final long serialVersionUID = 4954679568571530415L;
 	
 	private PartSet parent;
 	private int size;

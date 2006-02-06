@@ -23,19 +23,69 @@
  */
 package de.mutantenzoo.gcu.model;
 
+/**
+ * Enum that represnts the possible values
+ * for the status of a chainline
+ * @author mklemm
+ *
+ */
 public enum ChainlineStatus {
-	SELECTED(0), GOOD(1), OK(2), BAD(4), USABLE(3), ALL(7);
+	
+	/**
+	 * The chainline was selected by the user
+	 */
+	SELECTED(0),
+	
+	/**
+	 * The chainline is "good"
+	 */
+	GOOD(1),
+	
+	/**
+	 * The chainline is sub-optimal, but OK
+	 */
+	OK(2),
+	
+	/**
+	 * The chailine is bad (unusable gear combination)
+	 */
+	BAD(4),
+	
+	/**
+	 * The chainline is either good or OK
+	 */
+	USABLE(3),
+	
+	/**
+	 * The chainline is in any
+	 * of the above conditions
+	 */
+	ANY(7);
 	
 	private int value;
 	
-	ChainlineStatus(int value) {
+	/**
+	 * ChainlineStatus constants are int values internally.
+	 * @param value The int value of the constant
+	 */
+	private ChainlineStatus(int value) {
 		this.value = value;
 	}
 	
-	public int value() {
+	/**
+	 * Gets the int value of a constant
+	 * @return The int value
+	 */
+	private int value() {
 		return value;
 	}
 	
+	/**
+	 * Checks whether this chainline status includes
+	 * the specifed one (Logical AND operation).
+	 * @param cs The status to check for
+	 * @return "true" if this status includes "cs", "false" otherwise.
+	 */
 	public boolean has(ChainlineStatus cs) {
 		return (value & cs.value()) > 0;
 	}

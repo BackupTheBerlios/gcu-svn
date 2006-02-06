@@ -44,15 +44,17 @@ import de.mutantenzoo.raf.ContentEventSource;
 import de.mutantenzoo.raf.View;
 
 /**
+ * Table view of all visible gears
  * @author MKlemm
  *
  */
 public class DriveTrainTable extends JScrollPane implements ContentEventSource, View<DriveTrain>{
 
 	/**
-	 * 
+	 * Generated SUID
 	 */
 	private static final long serialVersionUID = 1651071670040914327L;
+	
 	private JTable displayTable = null;
 
 	private TableAdapter adapter;
@@ -72,7 +74,7 @@ public class DriveTrainTable extends JScrollPane implements ContentEventSource, 
 
 	/**
 	 * This method initializes this
-	 * 
+	 * component
 	 */
 	private void initialize() {
         this.setViewportView(getDisplayTable());
@@ -118,10 +120,17 @@ public class DriveTrainTable extends JScrollPane implements ContentEventSource, 
 		return displayTable;
 	}
 
+	/**
+	 * Notify this component of model or style changes
+	 */
 	public void update() {
 		adapter.update();
 	}
 
+	/**
+	 * Sets a specified gear as selected by the user
+	 * @param gear
+	 */
 	public void setSelection(Gear gear) {
 		adapter.getStyle().setSelectedGear(gear);
 		contentAdapter.fireStyleChanged();
@@ -155,18 +164,37 @@ public class DriveTrainTable extends JScrollPane implements ContentEventSource, 
 		adapter.setStyle(style);
 	}
 
+	/*
+	 *  (non-Javadoc)
+	 * @see de.mutantenzoo.raf.ContentEventSource#addContentChangeListener(de.mutantenzoo.raf.ContentChangeListener)
+	 */
 	public void addContentChangeListener(ContentChangeListener contentChangeListener) {
 		contentAdapter.addContentChangeListener(contentChangeListener);
 	}
 
+	/**
+	 * Notify this view of pure data changes, i.e.
+	 * no gears were added or removed.
+	 */
 	public void dataChanged() {
 		adapter.fireTableDataChanged();
 	}
 	
+	/**
+	 * Notify this view of structure changes, i.e.
+	 *add or removal of gears
+	 */
 	public void structureChanged() {
 		adapter.fireTableStructureChanged();
 	}
 
+	/**
+	 * Draw this view to a printer
+	 * graphics context with the specified
+	 * page format.
+	 * @param g Printer graphics context
+	 * @param pageFormat Page format of the printer
+	 */
 	public void print(Graphics2D g, PageFormat pageFormat) {
 		Dimension origSize = displayTable.getSize();
 		displayTable.setSize((int)pageFormat.getImageableWidth(), (int)origSize.getHeight());

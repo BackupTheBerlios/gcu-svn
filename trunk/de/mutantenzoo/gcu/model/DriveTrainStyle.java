@@ -24,12 +24,15 @@
 package de.mutantenzoo.gcu.model;
 
 /**
+ * Presentation specific application state.
+ * Contains information abou which and how
+ * the gears are to be shown to the user.
  * @author MKlemm
  *
  */
 public class DriveTrainStyle {
 	
-	private ChainlineStatus gearVisibility = ChainlineStatus.ALL;
+	private ChainlineStatus gearVisibility = ChainlineStatus.ANY;
 	private double zoomFactor = 1.0;
 	private Gear selectedGear = null;
 	private int viewportX = 0;
@@ -43,6 +46,9 @@ public class DriveTrainStyle {
 	}
 
 	/**
+	 * Sets the ChainlineStatus that gears should have
+	 * that should be displayed. Gears with a status worse
+	 * than the specified one will be hidden by the GUI
 	 * @param gearVisibility The gearVisibility to set.
 	 */
 	public void setGearVisibility(ChainlineStatus gearVisibility) {
@@ -50,6 +56,7 @@ public class DriveTrainStyle {
 	}
 
 	/**
+	 * Gets the Zoom factor of the graphical drivetrain representation
 	 * @return Returns the zoomFactor.
 	 */
 	public double getZoomFactor() {
@@ -57,6 +64,7 @@ public class DriveTrainStyle {
 	}
 
 	/**
+	 * Sets the zoom factor of the graphical drivetrain representation
 	 * @param zoomFactor The zoomFactor to set.
 	 */
 	public void setZoomFactor(double zoomFactor) {
@@ -64,6 +72,7 @@ public class DriveTrainStyle {
 	}
 
 	/**
+	 * Gets the gear that was selected by the user from the table view.
 	 * @return Returns the selectedGear.
 	 */
 	public Gear getSelectedGear() {
@@ -71,6 +80,7 @@ public class DriveTrainStyle {
 	}
 
 	/**
+	 * Sets the gear that was selected by the user from the table view.
 	 * @param selectedGear The selectedGear to set.
 	 */
 	public void setSelectedGear(Gear selectedGear) {
@@ -78,6 +88,8 @@ public class DriveTrainStyle {
 	}
 
 	/**
+	 * Gets the X position of the viewport of the
+	 * drivetrain drawing
 	 * @return Returns the viewportX.
 	 */
 	public int getViewportX() {
@@ -85,6 +97,8 @@ public class DriveTrainStyle {
 	}
 
 	/**
+	 * Sets the X position of the viewport of the
+	 * drivetrain drawing
 	 * @param viewportX The viewportX to set.
 	 */
 	public void setViewportX(int viewportX) {
@@ -92,6 +106,8 @@ public class DriveTrainStyle {
 	}
 
 	/**
+	 * Gets the Y position of the viewport of the
+	 * drivetrain drawing
 	 * @return Returns the viewportY.
 	 */
 	public int getViewportY() {
@@ -99,6 +115,8 @@ public class DriveTrainStyle {
 	}
 
 	/**
+	 * Sets the Y position of the viewport of the
+	 * drivetrain drawing
 	 * @param viewportY The viewportY to set.
 	 */
 	public void setViewportY(int viewportY) {

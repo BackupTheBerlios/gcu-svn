@@ -54,19 +54,34 @@ import de.mutantenzoo.raf.ContentComponent;
 import de.mutantenzoo.raf.graphics.MeasureDrawing;
 
 /**
+ * A graphical representation of a drivetrain
  * @author MKlemm
  *
  */
 public class DriveTrainDrawing extends ContentComponent {
 
 	/**
-	 * 
+	 * Generated SUID
 	 */
-	private static final long serialVersionUID = 1L;
-
+	private static final long serialVersionUID = -3827978733937835253L;
+	
 	private DriveTrain model;
 	private DriveTrainStyle style;
 	private Dimension preferredSize = new Dimension(150,480);
+	
+	/**
+	 * Constructor, initializes this view with a model and a style 
+	 */
+	public DriveTrainDrawing(DriveTrain model, DriveTrainStyle style) {
+		this.model= model;
+		this.style = style;
+		PanListener panListener = new PanListener();
+		addMouseListener(panListener);
+		addMouseMotionListener(panListener);
+		addMouseWheelListener(panListener);
+		setToolTipText(Messages.getString("DriveTrainDrawing.Tip"));
+	}
+	
 	
 	/**
 	 * @return Returns the model.
@@ -96,19 +111,6 @@ public class DriveTrainDrawing extends ContentComponent {
 		this.style = style;
 	}
 
-	/**
-	 * 
-	 */
-	public DriveTrainDrawing(DriveTrain model, DriveTrainStyle style) {
-		this.model= model;
-		this.style = style;
-		PanListener panListener = new PanListener();
-		addMouseListener(panListener);
-		addMouseMotionListener(panListener);
-		addMouseWheelListener(panListener);
-		setToolTipText(Messages.getString("DriveTrainDrawing.Tip"));
-	}
-	
 	/* (non-Javadoc)
 	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
 	 */
@@ -120,6 +122,13 @@ public class DriveTrainDrawing extends ContentComponent {
 		draw(g2);
 	}
 	
+	/**
+	 * Paints this component to a
+	 * printer graphics context in the
+	 * specified page format.
+	 * @param g Graphics context to paint to
+	 * @param pageFormat Page format of the printer graphics context.
+	 */	
 	public void print(Graphics2D g, PageFormat pageFormat) {
 		Dimension origSize = getSize();
 		AffineTransform origTransform = g.getTransform();
@@ -136,6 +145,10 @@ public class DriveTrainDrawing extends ContentComponent {
 		setSize(origSize);
 	}
 	
+	/**
+	 * Does the actual drawing of the view.
+	 * @param g2 Graphics context to paint the view on
+	 */
 	protected void draw(Graphics2D g2) {
 		
 		installTransform(g2);
@@ -200,7 +213,8 @@ public class DriveTrainDrawing extends ContentComponent {
 	}
 
 	/**
-	 * @param g2
+	 * Draws the measure lines and labels
+	 * @param g2 Graphics context to paint to.
 	 */
 	private void drawMeasures(Graphics2D g2) {
 		g2.setStroke(new BasicStroke(model.getUnitSystem().getNarrowLineWidth()));
@@ -279,8 +293,9 @@ public class DriveTrainDrawing extends ContentComponent {
 	}
 
 	/**
-	 * @param g2
-	 * @param sprocket
+	 * Draws a sprocket
+	 * @param g2 Graphics context to paint to.
+	 * @param sprocket The Sprocket to paint
 	 */
 	private void drawPart(Graphics2D g2, Part sprocket, double offset) {
 		Line2D partLine = new Line2D.Double(
@@ -293,8 +308,9 @@ public class DriveTrainDrawing extends ContentComponent {
 	}
 
 	/**
-	 * @param g2
-	 * @param gear
+	 * Draws a gear
+	 * @param g2 Graphics context to paint to
+	 * @param gear The gear to paint.
 	 */
 	private void drawGear(Graphics2D g2, Gear gear) {
 		g2.setColor(GearRenderer.getColorFromChainlineStatus(gear.getChainlineStatus()));
@@ -316,10 +332,22 @@ public class DriveTrainDrawing extends ContentComponent {
 		return preferredSize;
 	}
 
+	/**
+	 * Notify this view that the
+	 * model has changed.
+	 */
 	void update() {
 		repaint();
 	}
 	
+	/**
+	 * Sets up the transformation
+	 * matrix for this component.
+	 * This includes transformation from
+	 * world to screen coordinates, as well
+	 * as pan and zoom settings.
+	 * @param g Graphics context to set the matrix on.
+	 */
 	void installTransform(Graphics2D g) {
 		Rectangle r = getBounds();
 		double chainwheelRadius = model.getChainwheels().getLargest().getRadius();
@@ -346,10 +374,18 @@ public class DriveTrainDrawing extends ContentComponent {
 		g.translate(0, chainwheelRadius);
 	}
 	
+	/**
+	 * Mouse listener to handle user pan and zoom actions
+	 * @author mklemm
+	 *
+	 */
 	private class PanListener implements MouseInputListener,MouseWheelListener {
 
 		private int xOff=0, yOff=0;
 
+		/**
+		 * handles the mouse movement pan action
+		 */
 		public void mouseDragged(MouseEvent e) {
 			Point p = e.getPoint();
 			if((e.getModifiersEx() & MouseEvent.SHIFT_DOWN_MASK ) != 0) {
@@ -361,12 +397,18 @@ public class DriveTrainDrawing extends ContentComponent {
 			repaint();
 		}
 
+		/**
+		 * Starts the pan action
+		 */
 		public void mousePressed(MouseEvent e) {
 			Point p = e.getPoint();
 			xOff = p.x - style.getViewportX();
 			yOff = p.y - style.getViewportY();
 		}
 
+		/**
+		 * doesn't work
+		 */
 		public void mouseClicked(MouseEvent e) {
 			if((e.getModifiersEx() & MouseEvent.BUTTON2_DOWN_MASK) != 0) {
 				style.setViewportX(0);
@@ -376,6 +418,9 @@ public class DriveTrainDrawing extends ContentComponent {
 			}
 		}
 
+		/**
+		 * Handle the zoom action
+		 */
 		public void mouseWheelMoved(MouseWheelEvent e) {
 			style.setZoomFactor( style.getZoomFactor() + e.getWheelRotation() * 0.1);
 			fireStyleChanged();

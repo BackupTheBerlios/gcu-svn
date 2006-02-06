@@ -1,6 +1,6 @@
 <project name="gcu" default="package">
 
-	<property name="build.version" value="2.1.1"/>
+	<property file="build.number"/>
 	
 	<target name="compile" description="compiles the source files">
 		<javac srcdir="."
@@ -9,6 +9,7 @@
 	</target>
 	
 	<target name="package" depends="compile" description="creates an executable JAR">
+		<buildnumber/>
 		<zip destfile="../gcu-${build.version}.jar" basedir="."/>
 	</target>
 	

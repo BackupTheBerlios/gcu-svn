@@ -37,11 +37,21 @@ import de.mutantenzoo.gcu.ui.TableAdapter;
 import de.mutantenzoo.raf.FileName;
 
 /**
+ * Utility class to export DriveTrain and
+ * comparison view data as an HTML document.
  * @author MKlemm
  *
  */
 public class DriveTrainHTMLWriter {
 
+	/**
+	 * Writes an HTML representation of
+	 * the drive train drawing and the
+	 * table view to an output stream.
+	 * @param out The stream to write the HTML to.
+	 * @param model The TableAdapter that contains the DriveTrain data to write.
+	 * @param imageURL The URL of the embedded image showing the drive train drawing.
+	 */
 	public static void writeHTML(PrintStream out, TableAdapter model, String imageURL) {
 		out.println("<html>");
 		out.println("  <head>");
@@ -78,6 +88,13 @@ public class DriveTrainHTMLWriter {
 		out.println("</html>");
 	}
 
+	/**
+	 * Writes an HTML representation of the
+	 * compariso view to a file.
+	 * @param htmlFile The file to write the HTML to.
+	 * @param view The DriveTrainComparisonView to export.
+	 * @throws IOException if writing to the file fails.
+	 */
 	public static void writeComparisonHTML(File htmlFile, DriveTrainComparisonView view) throws IOException {
 		String path = htmlFile.getPath();
 		String title = FileName.strip(htmlFile.getName());

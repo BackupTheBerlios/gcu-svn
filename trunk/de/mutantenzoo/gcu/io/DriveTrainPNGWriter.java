@@ -36,6 +36,9 @@ import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 
 /**
+ * Utility class to write 
+ * Swing components to PNG bitmap
+ * images.
  * @author MKlemm
  *
  */
@@ -44,24 +47,58 @@ public class DriveTrainPNGWriter {
 	private BufferedImage image;
 	private Graphics2D g;
 	
+	/**
+	 * Initializes the PNGWriter with a
+	 * specific width and height.
+	 * @param width The width of the image.
+	 * @param height The height of the image.
+	 */
 	public DriveTrainPNGWriter(int width, int height) {
 		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		g = image.createGraphics();
 	}
 	
+	/**
+	 * Sets the background color of the image.
+	 * The default is "Transparent".
+	 * @param color Color of the image background.
+	 */
 	public void setBackgroundColor(Color color) {
 		g.setBackground(color);
 		g.clearRect(0, 0, image.getWidth(), image.getHeight());
 	}
 	
+	/**
+	 * Gets the graphics context.
+	 * Everything that is painted on this
+	 * Graphics context will be saved to
+	 * the image file.
+	 * @return The Graphics context.
+	 */
 	public Graphics2D getGraphics() {
 		return g;
 	}
 	
+	/**
+	 * Saves the data to the specified
+	 * output stream.
+	 * @param out The output stream to save the data to.
+	 * @throws IOException if stream operations fail.
+	 */
 	public void save(OutputStream out) throws IOException {
 		ImageIO.write(image, "png", out);
 	}
 	
+	/**
+	 * Convenience method to save a 
+	 * Swing component as it is shown
+	 * on-screen in one step.
+	 * @param out OutputStream to write the image data to.
+	 * @param view Component to export.
+	 * @param width Width of the resulting image. The view will be scaled to fit this.
+	 * @param height Height of the resulting image. The view will be scaled to fit this.
+	 * @throws IOException If stream operations fail.
+	 */
 	public static void writePNG(OutputStream out, JComponent view, int width, int height) throws IOException {
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = image.createGraphics();

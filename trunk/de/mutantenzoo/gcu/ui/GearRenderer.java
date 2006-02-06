@@ -35,6 +35,12 @@ import javax.swing.table.TableCellRenderer;
 
 import de.mutantenzoo.gcu.model.ChainlineStatus;
 
+/**
+ * TableCellRenderer for a table cell that contains a Gear
+ * object.
+ * @author mklemm
+ *
+ */
 public class GearRenderer extends JComponent implements TableCellRenderer {
 
 	private double fillRatio=0.5;
@@ -42,7 +48,7 @@ public class GearRenderer extends JComponent implements TableCellRenderer {
 	private Color selectedColor = null;
 	
 	/**
-	 * 
+	 * Generated SUID
 	 */
 	private static final long serialVersionUID = 1L;
 
@@ -101,6 +107,10 @@ public class GearRenderer extends JComponent implements TableCellRenderer {
 		return new Dimension(300,10);
 	}
 
+	/*
+	 *  (non-Javadoc)
+	 * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+	 */
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 		if (value != null) {
 			Model model = (Model)value;
@@ -119,6 +129,11 @@ public class GearRenderer extends JComponent implements TableCellRenderer {
 		}
 	}
 	
+	/**
+	 * Model for this view
+	 * @author mklemm
+	 *
+	 */
 	public static class Model {
 		public ChainlineStatus status;
 		public double fillRatio;
@@ -133,6 +148,11 @@ public class GearRenderer extends JComponent implements TableCellRenderer {
 		}
 	}
 
+	/**
+	 * Gets a color value for a specific chainline status
+	 * @param chainlineStatus
+	 * @return
+	 */
 	public static Color getColorFromChainlineStatus(ChainlineStatus chainlineStatus) {
 		switch(chainlineStatus) {
 		case GOOD: return Color.GREEN;

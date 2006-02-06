@@ -28,6 +28,8 @@ package de.mutantenzoo.gcu.ui;
 import de.mutantenzoo.gcu.units.UnitSystem;
 
 /**
+ * Common interface for views that
+ * display gears.
  * @author MKlemm
  *
  */

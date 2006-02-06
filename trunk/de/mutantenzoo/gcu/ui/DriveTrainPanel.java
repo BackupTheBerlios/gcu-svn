@@ -68,6 +68,8 @@ import de.mutantenzoo.raf.ContentChangeListener;
 import de.mutantenzoo.raf.ContentPanel;
 
 /**
+ * Document view for one
+ * drivetrain
  * @author MKlemm
  *
  */
@@ -78,6 +80,7 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 	 * Generated SUID
 	 */
 	private static final long serialVersionUID = -851432026795134285L;
+	
 	private static final Icon SAVE_ICON = new ImageIcon(DriveTrainPanel.class.getResource("/toolbarButtonGraphics/general/Save16.gif"));
 	
 	private static final int DEFAULT_CHAINWHEEL_COUNT = 3;
@@ -111,14 +114,24 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 
 	private ZoomInput zoomInput = new ZoomInput(model, style);
 
+	// [start] Initialization code
 
+	/**
+	 * Default constructor
+	 * Initializes the instance with
+	 * all child components
+	 */
 	public DriveTrainPanel() {
 		super(new GridBagLayout());
 		name= Messages.format("Unnamed", ++instanceCount);
 		initComponents();
 	}
 
-	public void initComponents() {
+	/**
+	 * Pulls up all child GUI components
+	 *
+	 */
+	private void initComponents() {
 		model.reset();
 		JTabbedPane tabbedPane = new JTabbedPane();
 
@@ -163,7 +176,9 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 	}
 
 	/**
-	 * @param tabbedPane
+	 * Creates the "Translation" input tabbed page
+	 * @param tabbedPane the tabbed pane to add the
+	 * ranslation tab to.
 	 */
 	private void getTranslationInput(JTabbedPane tabbedPane) {
 		JPanel translationInput = new JPanel(new GridBagLayout());
@@ -192,7 +207,8 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 	}
 	
 	/**
-	 * @param tabbedPane
+	 * Creates the geomerty input tabbed page
+	 * @param tabbedPane The TabbedPane to add the tab to
 	 */
 	private void getGeometryInput(JTabbedPane tabbedPane) {
 		JPanel geometryInput = new JPanel(new GridBagLayout());
@@ -219,6 +235,15 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 		tabbedPane.addTab(Messages.getString("GeometryDetails"), null, geometryInput, Messages.getString("GeometryDetailsTip"));
 	}
 
+	// [end]
+	
+	/**
+	 * Implements ContentChangeListener.contentChanged().
+	 * Flags the model as modified and updates all child
+	 * components to reflect the new model values.
+	 * Then itself fires a contentChangeEvent to notify
+	 * listeners of the change.
+	 */
 	public void contentChanged(ChangeEvent e) {
 		model.setModified(true);
 		update();
@@ -226,18 +251,31 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 		fireContentChanged();
 	}
 	
+	/**
+	 * Implements ContentChangeListener.styleChanged().
+	 * notifies child components and listeners of the
+	 * style change.
+	 */
 	public void styleChanged(ChangeEvent e) {
 		update();
 		fireStyleChanged();
 	}
 
+	// [start] property accessors
 	/**
+	 * Gets the model
 	 * @return Returns the model.
 	 */
 	public DriveTrain getModel() {
 		return model;
 	}
 
+	/**
+	 * Sets the unit system for this instance
+	 * and ensures that children reflect the
+	 * change.
+	 * @param unitSystem The new unit system
+	 */
 	public void setUnitSystem(UnitSystem unitSystem) {
 		model.setUnitSystem(unitSystem);
 		update();
@@ -245,8 +283,9 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 	}
 
 	/**
-	 * @param model
-	 *            The model to set.
+	 * Sets the model and notofies children
+	 * to reflect the changes.
+	 * @param model The model to set.
 	 */
 	public void setModel(DriveTrain model) {
 		this.model = model;
@@ -262,6 +301,13 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 		driveTrainOutput.structureChanged();
 	}
 
+	// [end]
+	
+	/**
+	 * Support method to notify children of any
+	 * changes to model or style.
+	 *
+	 */
 	public void update() {
 		generalTranslationInput.update();
 		generalGeometryInput.update();
@@ -274,8 +320,10 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 	}
 
 	/**
-	 * Prompts the user for a filename and saves the data to the selected file
-	 * 
+	 * Prompts the user for a filename and saves
+	 * the model to the selected file
+	 * @return A flag that indicates whether the
+	 * file could be written successfully.
 	 */
 	public boolean saveAs() {
 		JFileChooser fileChooser = new JFileChooser();
@@ -316,6 +364,15 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 		}
 	}
 
+	/**
+	 * Support method to actually write a profile
+	 * to a file. The requested format is determined
+	 * and then it is decided whether to call
+	 * writeBinaryFile() or writeXMLFile().
+	 * @return A flag indicating whether the write
+	 * operation has succeeded. "true" if the file
+	 * could be written successfully, "false" otherwise.
+	 */
 	private boolean writeFile() {
 		boolean success;
 		if(model.getFile().getName().toLowerCase().endsWith(".rrp")) {
@@ -330,7 +387,11 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 	}
 	
 	/**
-	 * Writes data out into file specified in model
+	 * Writes data out into the
+	 * file specified in the model
+	 * in the GCU 1.1 *.rrp format.
+	 * @return A flag that indicates
+	 * the success of the write operation.
 	 */
 	private boolean writeBinaryFile() {
 		File selectedFile = model.getFile();
@@ -351,7 +412,8 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 	}
 
 	/**
-	 * Writes data out into file specified in model
+	 * Writes data out in XML format.
+	 * @return A flag indicating the success of the operation.
 	 */
 	private boolean writeXMLFile() {
 		File selectedFile = model.getFile();
@@ -380,6 +442,14 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 
 	}
 
+	/**
+	 * Checks for modifications in the current model
+	 * and prompts the user to save the profile.
+	 * @return A flag indicating the success of the
+	 * operation. Returns "true" if the model was saved, or
+	 * if the user chose not to save the model, returns "false"
+	 * if the user cancelled the save or if saving was unsuccessful.
+	 */
 	boolean saveModified() {
 		if (model.isModified()) {
 			int selectedOption = JOptionPane.showConfirmDialog(this,
@@ -400,6 +470,15 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 		}
 	}
 
+	/**
+	 * Handles the "Save" user action.
+	 * If the current model already has
+	 * a file name, just saves the model
+	 * to that file, otherwise does the
+	 * same as the "Save As" action.
+	 * @return A flag indicating the success
+	 * of the operation.
+	 */
 	boolean save() {
 		if (model.isModified()) {
 			if (model.getFile() == null) {
@@ -412,24 +491,46 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 		}
 	}
 
+	/**
+	 * Handles the "View All Gears" user action.
+	 * Sets the style property accordingly, and
+	 * notfies all children of the change.
+	 */
 	public void viewAllGears() {
-		getStyle().setGearVisibility(ChainlineStatus.ALL);
+		getStyle().setGearVisibility(ChainlineStatus.ANY);
 		update();
 		getGearBoxOutput().dataChanged();
 	}
 	
+	/**
+	 * Handles the "View Usable Gears" user action.
+	 * Sets the style property accordingly, and
+	 * notfies all children of the change.
+	 */
 	public void viewOKGears() {
 		getStyle().setGearVisibility(ChainlineStatus.USABLE);
 		update();
 		getGearBoxOutput().dataChanged();
 	}
 	
+	/**
+	 * Handles the "View Recommended Gears" user action.
+	 * Sets the style property accordingly, and
+	 * notfies all children of the change.
+	 */
 	public void viewGoodGears() {
 		getStyle().setGearVisibility(ChainlineStatus.GOOD);
 		update();
 		getGearBoxOutput().dataChanged();
 	}
 	
+	/**
+	 * Handles the "Export" User action.
+	 * Prompts the user for a file name
+	 * and file type and calls the
+	 * appropriate utility methods to
+	 * do the actual export.
+	 */
 	public void export() {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setFileFilter(null);
@@ -478,10 +579,13 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 
 			}
 		}
-
-
 	}
 	
+	/**
+	 * Handles the "Print" user action.
+	 * Shows a printer dialog and prepares
+	 * the page for printing
+	 */
 	public void print() {
 		PrinterJob pj = PrinterJob.getPrinterJob();
 		pj.setPrintable(this);
@@ -498,6 +602,12 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 		}
 	}
 
+	/**
+	 * Implements the "Printable" interface,
+	 * does the actual printing layout and
+	 * draws the component to the printer's
+	 * graphics context.
+	 */
 	public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
 		if(pageIndex == 0) {
 			Graphics2D g = (Graphics2D)graphics;
@@ -518,6 +628,9 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 		}
 	}
 
+	/**
+	 * Handles the "Close" user action.
+	 */
 	public boolean close() {
 		if(saveModified()) {
 			getParent().remove(this);
@@ -553,12 +666,22 @@ public class DriveTrainPanel extends ContentPanel implements ContentChangeListen
 		return driveTrainOutput;
 	}
 
+	/**
+	 * Returns the style model of this
+	 * view.
+	 * @return The style
+	 */
 	public DriveTrainStyle getStyle() {
 		return style;
 	}
 
-
-
+	/**
+	 * Returns the icon for this view,
+	 * dependent on the modified state
+	 * of the model.
+	 * @return null if the model is unmodified, a "save"-icon
+	 * if the model is modified since the last save operation.
+	 */
 	public Icon getIcon() {
 		if(model.isModified()) {
 			return SAVE_ICON;

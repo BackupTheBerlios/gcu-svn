@@ -52,11 +52,18 @@ import de.mutantenzoo.gcu.ui.Messages;
 import de.mutantenzoo.gcu.units.UnitSystem;
 
 /**
+ * Utility class to serialize
+ * DriveTrain data into an XML document.
  * @author MKlemm
  *
  */
 public class DriveTrainEncoder {
 
+	/**
+	 * Serializes a DriveTrain into an XML node.
+	 * @param parent The parent node the DriveTrain should be added to as a child node.
+	 * @param model The DriveTrain to serialize.
+	 */
 	public static void encode(Node parent, DriveTrain model) {
 		Element element = parent.getOwnerDocument().createElement("DriveTrain");
 		element.setAttribute("name", model.getName());
@@ -76,12 +83,28 @@ public class DriveTrainEncoder {
 		parent.appendChild(element);
 	}
 
+	/**
+	 * Writes a DriveTrain into an
+	 * output stream serialized as XML data.
+	 * @param out Output stream to write XML data to.
+	 * @param model The DriveTrain to write.
+	 * @throws TransformerException if the transformation of the XML document to the output stream fails.
+	 * @throws ParserConfigurationException if the XML document cannot be built. 
+	 */
 	public static void encode(OutputStream out, DriveTrain model) throws TransformerException, ParserConfigurationException {
 		ArrayList<DriveTrain> models = new ArrayList<DriveTrain>(1);
 		models.add(model);
 		encode(out, models);
 	}
 	
+	/**
+	 * Write as collection of DriveTrain objects
+	 * to an output stream as XML data.
+	 * @param out OutputStream to write the data to.
+	 * @param models Collection of DriveTrain objects to write.
+	 * @throws TransformerException if the transformation of the XML document to the output stream fails.
+	 * @throws ParserConfigurationException if the XML document cannot be built. 
+	 */
 	public static void encode(OutputStream out, Collection<DriveTrain> models) throws TransformerException, ParserConfigurationException {
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
@@ -92,6 +115,14 @@ public class DriveTrainEncoder {
 		
 	}
 
+	/**
+	 * Serializes a collection of DriveTrain
+	 * objects into an XML document object.
+	 * @param models The DriveTrain objects to serialize.
+	 * @return An XML document containing the XML representation
+	 * of the models.
+	 * @throws ParserConfigurationException if the document cannot be built.
+	 */
 	public static Document createDocument(Collection<DriveTrain> models) throws ParserConfigurationException {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
@@ -104,6 +135,16 @@ public class DriveTrainEncoder {
 		return doc;
 	}
 	
+	/**
+	 * de-serializes an array of DriveTrain objects from
+	 * an input stream that contains XML data.
+	 * @param is Input stream to read XML data from.
+	 * @return An array of DriveTrain objects read from the XML in the input stream.
+	 * @throws TransformerException if the data from the input stream cannot be read or is not valid XML.
+	 * @throws ParserConfigurationException if the parser to read the data cannot be set up.
+	 * @throws SAXException if there are errors parsing the input data.
+	 * @throws IOException if reading from the input stream fails.
+	 */
 	public static DriveTrain[] decode(InputStream is) throws TransformerException, ParserConfigurationException, SAXException, IOException {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
@@ -124,6 +165,13 @@ public class DriveTrainEncoder {
 		}
 	}
 	
+	/**
+	 * De-serializes one DriveTrain object from an
+	 * XML Element.
+	 * @param element The element that contains the XML representation
+	 * of the DriveTrain object.
+	 * @return A new DriveTrain object decoded from the XML element.
+	 */
 	public static DriveTrain decode(Element element) {
 		DriveTrain model = new DriveTrain();
 		if(element.hasAttribute("name")) {

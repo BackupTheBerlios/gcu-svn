@@ -34,7 +34,6 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.font.TextLayout;
-import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 
 import javax.swing.JComponent;
@@ -42,6 +41,9 @@ import javax.swing.JComponent;
 import de.mutantenzoo.gcu.model.DriveTrain;
 
 /**
+ * Component that draw the names of the drivetrains
+ * in rows left to the comparison view.
+ * Component of the @see de.mutantenzoo.gcu.ui.DriveTrainComparisonView
  * @author MKlemm
  *
  */
@@ -51,7 +53,6 @@ public class DriveTrainTitles extends JComponent {
 	 * Generated SUID
 	 */
 	private static final long serialVersionUID = -1444852719712673897L;
-	private static final GeneralPath triangle = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
 	private static final Dimension PREFERRED_SIZE = new Dimension();
 	private static final int LEFT_MARGIN = 5;
 	
@@ -59,15 +60,12 @@ public class DriveTrainTitles extends JComponent {
 	
 	
 	/**
-	 * Default Constructor
+	 * Constructor
+	 * @param parent The parent view of this view
 	 */
 	public DriveTrainTitles(DriveTrainComparisonView parent) {
 		super();
 		this.parent = parent;
-		triangle.moveTo(0,0);
-		triangle.lineTo(-5f,5f);
-		triangle.lineTo(5f,5f);
-		triangle.closePath();
 		setOpaque(true);
 	}
 	
@@ -82,14 +80,24 @@ public class DriveTrainTitles extends JComponent {
 		drawDriveTrains(g);
 	}
 
+	/**
+	 * Draws the names of the drivetrains
+	 * @param g Graphics context to draw to
+	 */
 	private void drawDriveTrains(Graphics2D g) {
-		int y = -parent.getSpacing();
+		int y = -parent.getSpacing(); 
 		for(DriveTrain model : parent.getDriveTrains().keySet()) {
-			drawGears(g, y+=parent.getSpacing(), model);
+			drawDriveTrainName(g, y+=parent.getSpacing(), model);
 		}
 	}
 	
-	private void drawGears(Graphics2D g, int y, DriveTrain model) {
+	/**
+	 * Draws the name of a drivetrain
+	 * @param g Graphics context to draw to
+	 * @param y y-Position of the name
+	 * @param model DriveTrain the name of which should be drawn
+	 */
+	private void drawDriveTrainName(Graphics2D g, int y, DriveTrain model) {
 		TextLayout tl = parent.getDriveTrains().get(model);
 		tl.draw(g, getWidth()-tl.getAdvance()-LEFT_MARGIN, y+tl.getAscent()+4);
 		Line2D axis = new Line2D.Double(LEFT_MARGIN , y, getWidth(), y);
@@ -101,6 +109,10 @@ public class DriveTrainTitles extends JComponent {
 		g.setStroke(origStroke);
 	}
 
+	/**
+	 * Prepares the transformation matrix of the graphics context.
+	 * @param g Graphics context to set the transformation for
+	 */
 	private void prepareTransform(Graphics2D g) {
 		g.translate(0, parent.getTopMargin());
 	}
@@ -116,21 +128,37 @@ public class DriveTrainTitles extends JComponent {
 		return PREFERRED_SIZE;
 	}
 	
+	/*
+	 *  (non-Javadoc)
+	 * @see java.awt.Component#getSize()
+	 */
 	@Override
 	public Dimension getSize() {
 		return getPreferredSize();
 	}
 	
+	/*
+	 *  (non-Javadoc)
+	 * @see java.awt.Component#getWidth()
+	 */
 	@Override
 	public int getWidth() {
 		return parent.getNameViewportWidth();
 	}
 	
+	/*
+	 *  (non-Javadoc)
+	 * @see java.awt.Component#getHeight()
+	 */
 	@Override
 	public int getHeight() {
 		return parent.getViewHeight();
 	}
 
+	/*
+	 *  (non-Javadoc)
+	 * @see java.awt.Component#getBounds()
+	 */
 	@Override
 	public Rectangle getBounds() {
 		return new Rectangle(getLocation(), PREFERRED_SIZE);
